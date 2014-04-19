@@ -19,7 +19,7 @@ Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
 // You can also make another motor on port M2
 //Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
 
-int IRread = A3;  
+int IRread = A0;  
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
 //UNO these are also known as A4 and A5
 int baseline = 0;
@@ -37,6 +37,8 @@ void setup() {
   LeftSolenoid->run(FORWARD);
   // turn on current in solenoid coil
   LeftSolenoid->run(RELEASE);
+  
+//for(i=0;i<4;i++){ motors[i].run(RELEASE); }
   
   // IR sensor initialization
     arrayinit();  
@@ -79,7 +81,7 @@ void arrayinit(){
       total++;
     }   
   delay(10);  
-//  Serial.println((long)IRvalArray[inc], DEC);  
+  Serial.println((long)IRvalArray[inc], DEC);  
   }
   }
   baseline=IRvalArray[3];
