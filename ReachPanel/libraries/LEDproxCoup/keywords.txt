@@ -1,0 +1,21 @@
+#######################################
+# Syntax Coloring Map For LEDproxCoup
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+LEDproxCoup	KEYWORD1
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+Init	KEYWORD2
+generateGrid	KEYWORD2
+getState	KEYWORD2
+checkProx	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
