@@ -1,7 +1,7 @@
 /* Reading IR phototransistor
 VP - 4/11/2014 */
 
-int analogPin = A3;   
+int analogPin = A0;   
 int baseline =0;
 int val = baseline;           // store read value
 
@@ -16,6 +16,7 @@ void loop()
 {
   val = analogRead(analogPin);    // read the input pin
   Serial.println(val);   
+  delay(200);
 }
 
 void arrayinit(){

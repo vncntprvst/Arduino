@@ -19,16 +19,23 @@ Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
 // You can also make another motor on port M2
 //Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
 
-int IRread = A0;  
+
+const int FlushPress = 2;     // pushbutton pin
+const int SwitchLed = 3;     // pushbutton led pin
+
+const int IRread = A0;  
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
 //UNO these are also known as A4 and A5
 int baseline = 0;
 int IRval = baseline;           // store read value
-
+//int PushState = 0;          // pushbutton status
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
-
+  
+  pinMode(FlushPress, INPUT_PULLUP);  
+  pinMode(SwitchLed, OUTPUT);
+  
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
   
@@ -46,22 +53,34 @@ void setup() {
 }
 
 void loop() {
+//  PushState= digitalRead(FlushPress);
+//  Serial.print("PushState = ");  
+//  Serial.println(PushState);  
+  
+  while (digitalRead(FlushPress) == LOW){
+    rewardflush();
+  }
+  LeftSolenoid->run(RELEASE);    // make sure to close solenoid 
+  digitalWrite(SwitchLed,LOW);   // and switch off switch LED
   
   IRval = analogRead(IRread);    // read the input pin
-  Serial.println(IRval);  
+//  Serial.println(IRval);  
   
   if (IRval > (baseline + 30)) {
     // open solenoid
-  Serial.print("open");
+  Serial.print("open ");
   LeftSolenoid->run(FORWARD);
-  LeftSolenoid->setSpeed(185);  // corresponds to 6V ouput with external power supply 
+  LeftSolenoid->setSpeed(185);  // 185 (max) corresponds to 6V ouput with external power supply 
                               // ~5.5V when solenoid plugged in                              
                            // 3.24V output with USB 
   // opening duration
-  delay(20);
+  delay(200);
+ 
+   LeftSolenoid->run(BRAKE);
+   
   // refractory period
-  Serial.print("close");
-  LeftSolenoid->run(RELEASE);
+  Serial.println("close");
+  LeftSolenoid->run(RELEASE); // cut power to motor
   delay(500);
   }
 }
@@ -89,4 +108,11 @@ void arrayinit(){
   Serial.println(baseline);
 
   Serial.println("End initialization");
+}
+
+void rewardflush(){
+  Serial.println("flush");
+  digitalWrite(SwitchLed,HIGH);
+  LeftSolenoid->run(FORWARD);
+  LeftSolenoid->setSpeed(185);
 }

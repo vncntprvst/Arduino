@@ -29,7 +29,7 @@ void setup() {
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
-  myMotor->setSpeed(30);  // 10 rpm   
+  myMotor->setSpeed(60);  // 10 rpm   
 }
 
 void loop() {
@@ -38,8 +38,8 @@ void loop() {
 //  myMotor->step(100, BACKWARD, SINGLE); 
 
   Serial.println("Double coil steps");
-  myMotor->step(100, FORWARD, DOUBLE); 
-  myMotor->step(100, BACKWARD, DOUBLE);
+  myMotor->step(400, FORWARD, DOUBLE); 
+  myMotor->step(400, BACKWARD, DOUBLE);
 //  
 //  Serial.println("Interleave coil steps");
 //  myMotor->step(100, FORWARD, INTERLEAVE); 
