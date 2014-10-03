@@ -48,7 +48,7 @@ mag = readJoystick(); // Determine which magnet to pulse from joystick
 
 int Aval = analogRead(A0); // Get voltage across potentiometer
 // returns value between 0 to 1023
-float interval = 0.2*Aval; // Arbitrarily scale the
+float interval = 0.2*Aval; // Scale value to desired frequency range
 
 currentTime = millis();
 if(currentTime - previousTime > interval){
