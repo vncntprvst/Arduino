@@ -1,6 +1,7 @@
 /* Program to run the whisker stimulator off the Arduino. Pulses are sent
 to a particular magnet selected by a joystick. The pulse frequency can be
-altered by rotating a potentiometer.
+altered by rotating a potentiometer. Able to switch between 4-magnet and
+single-magnet modes.
 */
 
 // Pins for each magnet
@@ -8,6 +9,7 @@ const int m1 =  3;
 const int m2 =  5;            
 const int m3 = 6;
 const int m4 = 9;
+const int m5 = 10;
 
 // Pins for joystick
 // Joystick is aligned when m1 is facing up
@@ -16,6 +18,8 @@ const int j2 = 4; // right, blue, corresponds to m2
 const int j3 = 7; // down, white, corresponds to m3
 const int j4 = 8; // left, yellow, corresponds to m4
 
+const int selectPin = 12; // Pin for single magnet/4 magnet select switch
+
 void setup() {
   Serial.begin(9600);
   // initialize the magnet pins as outputs:
@@ -23,6 +27,7 @@ void setup() {
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT); 
   pinMode(m4, OUTPUT);
+  pinMode(m5, OUTPUT);
   
   pinMode(A0, INPUT); // Analog input, reads voltage from potentiometer
   
@@ -32,6 +37,7 @@ void setup() {
   pinMode(j3, INPUT);
   pinMode(j4, INPUT);
   
+  pinMode(selectPin, INPUT);
 }
 
 int mag; // variable to store current magnet to pulse
@@ -43,8 +49,13 @@ float previousTime = 0; // Variable compared against currentTime
                         // to decide whether to send pulse 
 float pulseTime; // Variable to store time of each pulse (ms)
 
+int selectMode = digitalRead(selectPin);
+if(selectMode == HIGH){
 lastmag = mag;
 mag = readJoystick(); // Determine which magnet to pulse from joystick
+} else{
+ mag = m5; 
+}
 
 int Aval = analogRead(A0); // Get voltage across potentiometer
 // returns value between 0 to 1023
@@ -59,7 +70,7 @@ if(currentTime - previousTime > interval){
 }
 
 float freq = 1000/interval; // pulse frequency in Hz
-Serial.println(freq); // Display frequency
+Serial.println(mag); // Display frequency
 }
 
 // Reads the direction of the joy stick and sets the corresponding 
@@ -94,13 +105,13 @@ int readJoystick(){
 // pulse width = 30 ms
 // rise/fall time = 10 ms
 void pulse(int m){
-  for(i = 0; i<250; i+=25){
+  for(int i = 0; i<250; i+=25){
     analogWrite(m, i); 
     delay(1);
   } 
   analogWrite(m,255);
   delay(30);
-  for(i = 255; i>0; i-=25){
+  for(int i = 255; i>0; i-=25){
     analogWrite(m, i); 
     delay(1);
   } 
