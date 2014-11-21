@@ -84,7 +84,7 @@ void loop() {
 //  Serial.println(PushState);  
   // check for flush activation 
   FrontIRval = analogRead(FrontIRread);
-  Serial.println(FrontIRval);
+  //Serial.println(FrontIRval);
   while (digitalRead(FlushPress) == LOW){
     rewardflush();
   }
