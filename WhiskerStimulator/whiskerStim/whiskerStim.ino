@@ -56,6 +56,7 @@ mag = readJoystick(); // Determine which magnet to pulse from joystick
 } else{
  mag = m5; 
 }
+Serial.print("Magnet "); Serial.print(mag); Serial.print(" selected");
 
 int Aval = analogRead(A0); // Get voltage across potentiometer
 // returns value between 0 to 1023
@@ -70,7 +71,7 @@ if(currentTime - previousTime > interval){
 }
 
 float freq = 1000/interval; // pulse frequency in Hz
-Serial.println(mag); // Display frequency
+Serial.print(" at frequency "); Serial.print(freq); Serial.println(" Hz"); // Display frequency
 }
 
 // Reads the direction of the joy stick and sets the corresponding 
