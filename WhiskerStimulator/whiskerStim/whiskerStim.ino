@@ -18,7 +18,20 @@ const int j2 = 4; // right, blue, corresponds to m2
 const int j3 = 7; // down, white, corresponds to m3
 const int j4 = 8; // left, yellow, corresponds to m4
 
-const int selectPin = 12; // Pin for single magnet/4 magnet select switch
+// Pin for single magnet/4 magnet select switch
+const int selectPin = 12; 
+
+// Pin for TTL out
+const int TTLPin1 = 11; // Digital TX p 
+
+// main variables
+float currentTime; // Variable to check current time (ms)
+float previousTime = 0; // Variable compared against currentTime 
+                        // to decide whether to send pulse 
+float pulseTimes; // Variable to store time of each pulse start(ms)
+float pulseTimee; // Variable to store time of each pulse end (ms)
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -38,16 +51,13 @@ void setup() {
   pinMode(j4, INPUT);
   
   pinMode(selectPin, INPUT);
+  pinMode(TTLPin1, OUTPUT);
 }
 
 int mag; // variable to store current magnet to pulse
 int lastmag; // variable to store the previous magnet that was pulsed
 
 void loop(){
-float currentTime; // Variable to check current time (ms)
-float previousTime = 0; // Variable compared against currentTime 
-                        // to decide whether to send pulse 
-float pulseTime; // Variable to store time of each pulse (ms)
 
 int selectMode = digitalRead(selectPin);
 if(selectMode == HIGH){
@@ -60,14 +70,23 @@ Serial.print("Magnet "); Serial.print(mag); Serial.print(" selected");
 
 int Aval = analogRead(A0); // Get voltage across potentiometer
 // returns value between 0 to 1023
-float interval = 0.2*Aval; // Scale value to desired frequency range
+float interval = 50+Aval-(0.2*Aval); // Scale value to desired frequency range (~1 to 20Hz)
+//Serial.print("interval "); Serial.println(interval);
 
 currentTime = millis();
+//Serial.print("currentTime "); Serial.println(currentTime);
+//Serial.print("time diff "); Serial.println(currentTime - previousTime);
 if(currentTime - previousTime > interval){
   // If enough time has elapsed, send pulse to mag
-    pulseTime = millis();
+  //  pulseTimes = millis();
+    //Serial.print("pulseTime "); Serial.println(pulseTimes);
     pulse(mag);
+  //  pulseTimee = millis();
+    //Serial.print("pulseTime "); Serial.println(pulseTimee);
+    
     previousTime = currentTime;
+  //  Serial.print("previousTime "); Serial.println(previousTime);
+  //  delay(30);
 }
 
 float freq = 1000/interval; // pulse frequency in Hz
@@ -104,8 +123,9 @@ int readJoystick(){
 
 // Sends a pulse to a magnet
 // pulse width = 30 ms
-// rise/fall time = 10 ms
+// rise/fall time = 10 ms => max 20Hz
 void pulse(int m){
+  TTLpulse(TTLPin1); // send TTL pulse at begining each stim  
   for(int i = 0; i<250; i+=25){
     analogWrite(m, i); 
     delay(1);
@@ -115,5 +135,12 @@ void pulse(int m){
   for(int i = 255; i>0; i-=25){
     analogWrite(m, i); 
     delay(1);
-  } 
+  }
+}
+
+//Send TTL pulse
+void TTLpulse(int ttlpin){
+  digitalWrite(ttlpin, HIGH); 
+  delay(50);
+  digitalWrite(ttlpin, LOW); 
 }
