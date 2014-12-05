@@ -31,7 +31,7 @@ float previousTime = 0; // Variable compared against currentTime
 float pulseTimes; // Variable to store time of each pulse start(ms)
 float pulseTimee; // Variable to store time of each pulse end (ms)
 
-
+float startTime;
 
 void setup() {
   Serial.begin(9600);
@@ -52,6 +52,7 @@ void setup() {
   
   pinMode(selectPin, INPUT);
   pinMode(TTLPin1, OUTPUT);
+  
 }
 
 int mag; // variable to store current magnet to pulse
@@ -66,20 +67,21 @@ mag = readJoystick(); // Determine which magnet to pulse from joystick
 } else{
  mag = m5; 
 }
-Serial.print("Magnet "); Serial.print(mag); Serial.print(" selected");
+//Serial.print("Magnet "); Serial.print(mag); Serial.print(" selected");
 
 int Aval = analogRead(A0); // Get voltage across potentiometer
+
 // returns value between 0 to 1023
-float interval = 50+Aval-(0.2*Aval); // Scale value to desired frequency range (~1 to 20Hz)
+float interval = 1000000; //50+Aval-(0.2*Aval); // Scale value to desired frequency range (~1 to 20Hz)
 //Serial.print("interval "); Serial.println(interval);
 
-currentTime = millis();
+currentTime = micros();
 //Serial.print("currentTime "); Serial.println(currentTime);
 //Serial.print("time diff "); Serial.println(currentTime - previousTime);
-if(currentTime - previousTime > interval){
+if(currentTime - previousTime >= interval-650){
   // If enough time has elapsed, send pulse to mag
-  //  pulseTimes = millis();
-    //Serial.print("pulseTime "); Serial.println(pulseTimes);
+//    pulseTimes = millis();
+//    Serial.print("pulseTime "); Serial.println(pulseTimes);
     pulse(mag);
   //  pulseTimee = millis();
     //Serial.print("pulseTime "); Serial.println(pulseTimee);
@@ -89,8 +91,8 @@ if(currentTime - previousTime > interval){
   //  delay(30);
 }
 
-float freq = 1000/interval; // pulse frequency in Hz
-Serial.print(" at frequency "); Serial.print(freq); Serial.println(" Hz"); // Display frequency
+//float freq = 1000/interval; // pulse frequency in Hz
+//Serial.print(" at frequency "); Serial.print(freq); Serial.println(" Hz"); // Display frequency
 }
 
 // Reads the direction of the joy stick and sets the corresponding 
