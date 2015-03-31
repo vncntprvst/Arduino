@@ -1,11 +1,5 @@
 /* 
-Whisker platform
-----------------
-11/19/2014
-Updated code for new Solenoids
-11/21/2014
-Added front IR sensor
----->	http://www.adafruit.com/products/1438
+Alternate between left and right ports - VP - 6/5/2014
 */
 
 #include <Wire.h>
@@ -15,21 +9,18 @@ Added front IR sensor
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
-// Left solenoid on port M1
+// Select which 'port' M1, M2, M3 or M4. In this case, M1
 Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
-// Right solenoid on port M2
+// You can also make another motor on port M2
 Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
 
-// Connect a stepper motor with 200 steps per revolution (1.8 degree)
-// to motor port #2 (M3 and M4)
-Adafruit_StepperMotor *TexturePanelStepper = AFMS.getStepper(200, 2);
 
 const int FlushPress = 2;     // pushbutton pin
 const int SwitchLed = 3;     // pushbutton led pin
 const int flushcycletime = 20; // solenoid turn off staircase period
 const int LeftIRread = A0; 
 const int RightIRread = A1;  
-const int FrontIRread = A2;
+const int FrontIRread = A2;  
 
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
 //UNO these are A4 and A5
@@ -38,7 +29,7 @@ int Rbaseline = 0;
 int Fbaseline = 0;
 int LeftIRval = Lbaseline;           // store read value
 int RightIRval = Rbaseline; 
-int FrontIRval = Fbaseline;
+int FrontIRval = Rbaseline; 
 int LeftGLight = 1; // Good to go ("green light")
 int RightGlight = 1;
 //int PushState = 0;          // pushbutton status
@@ -46,14 +37,9 @@ int RewCount=0;
 int Lrewtrig=0;
 int Rrewtrig=0;
 
-int curr_pos=0; // panel position, 0 or 1
-int next_pos;
-int rot_seq; // number of panel rotations
-
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
   randomSeed(analogRead(A4));
-    
   pinMode(FlushPress, INPUT_PULLUP);  
   pinMode(SwitchLed, OUTPUT);
   
@@ -66,11 +52,9 @@ void setup() {
   // turn on current in solenoid coil
 //  LeftSolenoid->run(FORWARD);
 //  RightSolenoid->run(FORWARD);
-// turn off current in solenoid coil
   LeftSolenoid->run(RELEASE);
   RightSolenoid->run(RELEASE);
-    
-  TexturePanelStepper->setSpeed(30);  // 10 rpm 
+  
 //for(i=0;i<4;i++){ motors[i].run(RELEASE); }
   
   // IR sensor initialization
@@ -83,10 +67,7 @@ void loop() {
 //  Serial.print("PushState = ");  
 //  Serial.println(PushState);  
   // check for flush activation 
-  FrontIRval = analogRead(FrontIRread);
-
-//  Serial.print("Front IR ");
-//  Serial.print(FrontIRval);
+  
   while (digitalRead(FlushPress) == LOW){
     rewardflush();
   }
@@ -96,13 +77,16 @@ void loop() {
   digitalWrite(SwitchLed,LOW);   // and switch off switch LED
   
   LeftIRval = analogRead(LeftIRread);    // read the input pin
-//  Serial.print(" Left IR ");
-//  Serial.print(LeftIRval);
   RightIRval = analogRead(RightIRread); 
-//  Serial.print(" Right IR ");
-//  Serial.println(RightIRval);
+//  Serial.print("Left ");
+//  Serial.print(LeftIRval);  
+//  Serial.print(" Right ");
+//  Serial.println(RightIRval);  
+ FrontIRval = analogRead(FrontIRread);
+  //  Serial.print("Front IR ");
+//  Serial.print(FrontIRval);
 
-  if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
+ if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
     Lrewtrig=Lrewtrig+1;
   }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
     Rrewtrig=Rrewtrig+1;
@@ -112,31 +96,38 @@ void loop() {
     // open solenoid
   Serial.println("Open Left Solenoid");
   reward(LeftSolenoid);
-  panelrotate();
+//  panelrotate();
   RewCount=RewCount+1;
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Lrewtrig=0;
+   
+  // Switch ports 
+  LeftGLight=0;
+  RightGlight=1;
   
   // refractory period
-  delay(5000);
+  delay(1000);
   } 
  
  if (Rrewtrig>5){
   // Right solenoid
   Serial.println("Open Right Solenoid ");
   reward(RightSolenoid);
-  panelrotate();
+//  panelrotate();
   RewCount=RewCount+1;
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Rrewtrig=0;
+    
+  // Switch ports 
+  LeftGLight=1;
+  RightGlight=0;
   
   // refractory period
   delay(1000);
   }
 }
-
 void arrayinit(){
   int  inc;
   int Ltotal;
@@ -201,57 +192,16 @@ void rewardflush(){
 
 
 void reward(Adafruit_DCMotor* solenoid){
-  solenoid->setSpeed(255); 
+  solenoid->setSpeed(255);  // 185 (max) corresponds to 6V ouput with external power supply 
+                              // ~5.5V when solenoid plugged in                              
+                           // 3.24V output with USB 
   solenoid->run(FORWARD);
-    for (int dec=255; dec>225; dec-=10) { //that will be ~2.5ul with gravity feed ~20cm above
+    for (int dec=255; dec>225; dec-=10) {
     solenoid->setSpeed(dec);
     delay(15);
-//    Serial.println(dec);
+    Serial.println(dec);
    }
  solenoid->run(RELEASE); // cut power to motor
 }
 
-
-void panelrotate(){
-  // Rotate panel for next trial
-  // here random rotation; may be replaced by instruction from computer
-  next_pos = random(200); // random number between 0 and 1
-//  Serial.print("panelrotate next pos ");
-//  Serial.println(next_pos);
-  rot_seq = random(200); // random number between 0 and 1
-//  Serial.print("panelrotate rot seq ");
-//  Serial.println(rot_seq);
-  
-  if (curr_pos < 100 && next_pos < 100){ //different texture
-    if (rot_seq < 100 ) { 
-//      Serial.println("Rotate CW 1/2");
-//      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
-//      delay(100);
-      Serial.println("Rotate CCW 3/4");
-      TexturePanelStepper->step(150, BACKWARD, SINGLE);
-      } else {
-//      Serial.println("Rotate CCW 1/2");
-//      TexturePanelStepper->step(100, BACKWARD, MICROSTEP);
-//      delay(100);
-      Serial.println("Rotate CW 3/4");
-      TexturePanelStepper->step(150, FORWARD, SINGLE);
-      }
-    } else {
-      if (rot_seq < 100 ) {
-//      Serial.println("Rotate CW 1/2");
-//      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
-//      delay(100);
-      Serial.println("Rotate CCW 1/2");
-      TexturePanelStepper->step(100, BACKWARD, SINGLE);
-      } else {
-//      Serial.println("Rotate CCW 1 and 1/2");
-//      TexturePanelStepper->step(300, BACKWARD, MICROSTEP);
-//      delay(100);
-      Serial.println("Rotate CW 1/2");
-      TexturePanelStepper->step(100, FORWARD, SINGLE);
-      }
-    }
-//    TexturePanelStepper->release();
-    curr_pos = next_pos;
-}
 

@@ -29,38 +29,23 @@ void setup() {
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
-  myMotor->setSpeed(30);  // 10 rpm   
+  myMotor->setSpeed(10);  // 10 rpm   
 }
 
-long timer;
 void loop() {
-//  Serial.println("Single coil steps");
-//  myMotor->step(100, FORWARD, SINGLE); 
-//  delay(250);
-//  myMotor->step(100, BACKWARD, SINGLE); 
-//
+  Serial.println("Single coil steps");
+  myMotor->step(100, FORWARD, SINGLE); 
+  myMotor->step(100, BACKWARD, SINGLE); 
 
-//if(
   Serial.println("Double coil steps");
-  myMotor->step(100, FORWARD, SINGLE);
-  delay(500);
- // while(millis()-timer < 250){
-  //myMotor->step(0,FORWARD,MICROSTEP);
- // }
-  myMotor->step(100, BACKWARD, SINGLE);
-//  
-//  Serial.println("Interleave coil steps");
-//  myMotor->step(100, FORWARD, INTERLEAVE); 
-//  myMotor->step(100, BACKWARD, INTERLEAVE); 
-//  
-//  Serial.println("Microstep steps");
-//  myMotor->step(100, FORWARD, MICROSTEP); 
-//  delay(250);
-//  myMotor->step(150, BACKWARD, MICROSTEP);
-    delay(5000);
-  //myMotor->release();
-    //timer = millis();
-   //while(millis()-timer < 5000){
-  //myMotor->step(0,FORWARD,MICROSTEP);
- // }
+  myMotor->step(500, FORWARD, DOUBLE); 
+  myMotor->step(500, BACKWARD, DOUBLE);
+  
+  Serial.println("Interleave coil steps");
+  myMotor->step(100, FORWARD, INTERLEAVE); 
+  myMotor->step(100, BACKWARD, INTERLEAVE); 
+  
+  Serial.println("Microstep steps");
+  myMotor->step(250, FORWARD, MICROSTEP); 
+  myMotor->step(250, BACKWARD, MICROSTEP);
 }

@@ -20,20 +20,26 @@ const int SwitchLed = 3;     // pushbutton led pin
 const int flushcycletime = 20; // solenoid turn off staircase period
 const int LeftIRread = A0; 
 const int RightIRread = A1;  
+const int FrontIRread = A2;  
 
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
-//UNO these are also known as A4 and A5
+//UNO these are A4 and A5
 int Lbaseline = 0;
 int Rbaseline = 0;
+int Fbaseline = 0;
 int LeftIRval = Lbaseline;           // store read value
 int RightIRval = Rbaseline; 
-//int PushState = 0;          // pushbutton status
-int LeftGLight = 1;
+int FrontIRval = Rbaseline; 
+int LeftGLight = 1; // Good to go ("green light")
 int RightGlight = 1;
+//int PushState = 0;          // pushbutton status
+int RewCount=0;
+int Lrewtrig=0;
+int Rrewtrig=0;
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
-  
+  randomSeed(analogRead(A4));
   pinMode(FlushPress, INPUT_PULLUP);  
   pinMode(SwitchLed, OUTPUT);
   

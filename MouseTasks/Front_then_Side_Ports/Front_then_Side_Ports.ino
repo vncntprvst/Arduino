@@ -1,11 +1,6 @@
 /* 
 Whisker platform
 ----------------
-11/19/2014
-Updated code for new Solenoids
-11/21/2014
-Added front IR sensor
----->	http://www.adafruit.com/products/1438
 */
 
 #include <Wire.h>
@@ -30,6 +25,9 @@ const int flushcycletime = 20; // solenoid turn off staircase period
 const int LeftIRread = A0; 
 const int RightIRread = A1;  
 const int FrontIRread = A2;
+unsigned short resetfp = 1;
+
+unsigned long time;
 
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
 //UNO these are A4 and A5
@@ -45,6 +43,7 @@ int RightGlight = 1;
 int RewCount=0;
 int Lrewtrig=0;
 int Rrewtrig=0;
+int Frewtrig=0;
 
 int curr_pos=0; // panel position, 0 or 1
 int next_pos;
@@ -83,10 +82,7 @@ void loop() {
 //  Serial.print("PushState = ");  
 //  Serial.println(PushState);  
   // check for flush activation 
-  FrontIRval = analogRead(FrontIRread);
 
-//  Serial.print("Front IR ");
-//  Serial.print(FrontIRval);
   while (digitalRead(FlushPress) == LOW){
     rewardflush();
   }
@@ -95,13 +91,27 @@ void loop() {
   RightSolenoid->run(RELEASE);
   digitalWrite(SwitchLed,LOW);   // and switch off switch LED
   
-  LeftIRval = analogRead(LeftIRread);    // read the input pin
+  FrontIRval = analogRead(FrontIRread); // read the input pin
+//  Serial.print("Front IR ");
+//  Serial.println(FrontIRval);
+  LeftIRval = analogRead(LeftIRread);    
 //  Serial.print(" Left IR ");
 //  Serial.print(LeftIRval);
   RightIRval = analogRead(RightIRread); 
 //  Serial.print(" Right IR ");
 //  Serial.println(RightIRval);
 
+if ((FrontIRval > (Fbaseline + 300))){
+    Frewtrig=Frewtrig+1;
+}    
+
+if (Frewtrig>5){
+  if (time+1000<millis() && resetfp==1){
+  Serial.println("Front panel explored");
+    time = millis();
+    resetfp=0;
+  }
+  
   if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
     Lrewtrig=Lrewtrig+1;
   }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
@@ -117,9 +127,11 @@ void loop() {
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Lrewtrig=0;
-  
+  Rrewtrig=0;
+  Frewtrig=0;
+  resetfp=1;
   // refractory period
-  delay(5000);
+  delay(1000);
   } 
  
  if (Rrewtrig>5){
@@ -131,10 +143,19 @@ void loop() {
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Rrewtrig=0;
-  
+  Lrewtrig=0;
+  Frewtrig=0;
+  resetfp=1;
   // refractory period
   delay(1000);
   }
+  
+  if (time+10000<millis()){
+    Frewtrig=0;
+    resetfp=1;
+  }
+  
+ } 
 }
 
 void arrayinit(){
@@ -228,13 +249,13 @@ void panelrotate(){
 //      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CCW 3/4");
-      TexturePanelStepper->step(150, BACKWARD, SINGLE);
+      TexturePanelStepper->step(150, BACKWARD, DOUBLE);
       } else {
 //      Serial.println("Rotate CCW 1/2");
 //      TexturePanelStepper->step(100, BACKWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CW 3/4");
-      TexturePanelStepper->step(150, FORWARD, SINGLE);
+      TexturePanelStepper->step(150, FORWARD, DOUBLE);
       }
     } else {
       if (rot_seq < 100 ) {
@@ -242,13 +263,13 @@ void panelrotate(){
 //      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CCW 1/2");
-      TexturePanelStepper->step(100, BACKWARD, SINGLE);
+      TexturePanelStepper->step(100, BACKWARD, DOUBLE);
       } else {
 //      Serial.println("Rotate CCW 1 and 1/2");
 //      TexturePanelStepper->step(300, BACKWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CW 1/2");
-      TexturePanelStepper->step(100, FORWARD, SINGLE);
+      TexturePanelStepper->step(100, FORWARD, DOUBLE);
       }
     }
 //    TexturePanelStepper->release();

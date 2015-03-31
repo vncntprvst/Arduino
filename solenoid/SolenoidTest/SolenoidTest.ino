@@ -1,8 +1,5 @@
 /* 
-Controlling solenoids with the Adafruit Motor Shield v2 
----->	http://www.adafruit.com/products/1438
-Adapted from Adafruit Motorshield v2 - DC Motor test
-VP - 4/9/14
+Testing reward volume
 */
 
 #include <Wire.h>
@@ -15,7 +12,9 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 // Select which 'port' M1, M2, M3 or M4. In this case, M1
 Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
 // You can also make another motor on port M2
-//Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
+Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
+
+int RewCount=0;
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
@@ -23,26 +22,49 @@ void setup() {
 
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
-  
-  // Set the speed to start, from 0 (off) to 255 (max speed)
-  LeftSolenoid->setSpeed(0);
-  LeftSolenoid->run(FORWARD);
-  // turn on current in solenoid coil
+
+  // turn off current in solenoid coil
   LeftSolenoid->run(RELEASE);
+  RightSolenoid->run(RELEASE);
+  
+  delay(2000);
 }
 
 void loop() {
-  // open solenoid
-  Serial.print("open");
-  LeftSolenoid->run(FORWARD);
-  LeftSolenoid->setSpeed(185);  // corresponds to 6V ouput with external power supply 
+  
+    while (RewCount <= 500){
+  // 500 trials give about ~1ml (.5 each side), so ~2ul per trial (see picture)
+  // Left solenoid
+  Serial.println("Open Left Solenoid");
+  reward(LeftSolenoid);
+  RewCount=RewCount+1;
+  Serial.print("Reward count: ");
+  Serial.println(RewCount);
+  
+  // refractory period
+  delay(500);
+
+  // Right solenoid
+  Serial.println("Open Right Solenoid ");
+  reward(RightSolenoid);
+  RewCount=RewCount+1;
+  Serial.print("Reward count: ");
+  Serial.println(RewCount);
+  
+  // refractory period
+  delay(500);
+    }
+}
+
+void reward(Adafruit_DCMotor* solenoid){
+  solenoid->setSpeed(255);  // 185 (max) corresponds to 6V ouput with external power supply 
                               // ~5.5V when solenoid plugged in                              
                            // 3.24V output with USB 
-  // opening duration
-  delay(2000);
-  // refractory period
-  Serial.print("pause");
-  LeftSolenoid->run(RELEASE);
-  delay(500);
-  
+  solenoid->run(FORWARD);
+    for (int dec=255; dec>225; dec-=10) {
+    solenoid->setSpeed(dec);
+    delay(15);
+    Serial.println(dec);
+   }
+ solenoid->run(RELEASE); // cut power to motor
 }

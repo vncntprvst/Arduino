@@ -1,11 +1,6 @@
 /* 
 Whisker platform
 ----------------
-11/19/2014
-Updated code for new Solenoids
-11/21/2014
-Added front IR sensor
----->	http://www.adafruit.com/products/1438
 */
 
 #include <Wire.h>
@@ -45,6 +40,7 @@ int RightGlight = 1;
 int RewCount=0;
 int Lrewtrig=0;
 int Rrewtrig=0;
+int Frewtrig=0;
 
 int curr_pos=0; // panel position, 0 or 1
 int next_pos;
@@ -70,7 +66,7 @@ void setup() {
   LeftSolenoid->run(RELEASE);
   RightSolenoid->run(RELEASE);
     
-  TexturePanelStepper->setSpeed(30);  // 10 rpm 
+  TexturePanelStepper->setSpeed(30);  // 30 rpm 
 //for(i=0;i<4;i++){ motors[i].run(RELEASE); }
   
   // IR sensor initialization
@@ -83,10 +79,7 @@ void loop() {
 //  Serial.print("PushState = ");  
 //  Serial.println(PushState);  
   // check for flush activation 
-  FrontIRval = analogRead(FrontIRread);
 
-//  Serial.print("Front IR ");
-//  Serial.print(FrontIRval);
   while (digitalRead(FlushPress) == LOW){
     rewardflush();
   }
@@ -100,13 +93,18 @@ void loop() {
 //  Serial.print(LeftIRval);
   RightIRval = analogRead(RightIRread); 
 //  Serial.print(" Right IR ");
-//  Serial.println(RightIRval);
-
+//  Serial.print(RightIRval);
+  FrontIRval = analogRead(FrontIRread);
+//  Serial.print("Front IR ");
+//  Serial.println(FrontIRval);
+  
   if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
     Lrewtrig=Lrewtrig+1;
   }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
     Rrewtrig=Rrewtrig+1;
-  }
+  }else if ((FrontIRval > (Fbaseline + 300))){
+    Frewtrig=Frewtrig+1;
+} 
   
     if (Lrewtrig>5){
     // open solenoid
@@ -117,9 +115,10 @@ void loop() {
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Lrewtrig=0;
-  
+  Rrewtrig=0;
+  Frewtrig=0;
   // refractory period
-  delay(5000);
+  delay(1000);
   } 
  
  if (Rrewtrig>5){
@@ -131,10 +130,26 @@ void loop() {
   Serial.print("Reward count: ");
   Serial.println(RewCount);
   Rrewtrig=0;
-  
+  Lrewtrig=0;
+  Frewtrig=0;
   // refractory period
   delay(1000);
-  }
+  } 
+  
+   if (Frewtrig>5){
+  // Both solenoids
+  Serial.println("Front: Double Reward! ");
+  reward(RightSolenoid);
+  reward(LeftSolenoid);
+  RewCount=RewCount+2;
+  Serial.print("Reward count: ");
+  Serial.println(RewCount);
+  Rrewtrig=0;
+  Lrewtrig=0;
+  Frewtrig=0;
+  // refractory period
+  delay(1000);
+  } 
 }
 
 void arrayinit(){
@@ -228,13 +243,13 @@ void panelrotate(){
 //      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CCW 3/4");
-      TexturePanelStepper->step(150, BACKWARD, SINGLE);
+      TexturePanelStepper->step(150, BACKWARD, DOUBLE);
       } else {
 //      Serial.println("Rotate CCW 1/2");
 //      TexturePanelStepper->step(100, BACKWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CW 3/4");
-      TexturePanelStepper->step(150, FORWARD, SINGLE);
+      TexturePanelStepper->step(150, FORWARD, DOUBLE);
       }
     } else {
       if (rot_seq < 100 ) {
@@ -242,13 +257,13 @@ void panelrotate(){
 //      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CCW 1/2");
-      TexturePanelStepper->step(100, BACKWARD, SINGLE);
+      TexturePanelStepper->step(100, BACKWARD, DOUBLE);
       } else {
 //      Serial.println("Rotate CCW 1 and 1/2");
 //      TexturePanelStepper->step(300, BACKWARD, MICROSTEP);
 //      delay(100);
       Serial.println("Rotate CW 1/2");
-      TexturePanelStepper->step(100, FORWARD, SINGLE);
+      TexturePanelStepper->step(100, FORWARD, DOUBLE);
       }
     }
 //    TexturePanelStepper->release();
