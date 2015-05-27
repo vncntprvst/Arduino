@@ -1,6 +1,8 @@
 /* 
 Whisker platform
 ----------------
+Mouse go to front panel, then to either reward port
+// 3/31 added TTL out
 */
 
 #include <Wire.h>
@@ -25,6 +27,7 @@ const int flushcycletime = 20; // solenoid turn off staircase period
 const int LeftIRread = A0; 
 const int RightIRread = A1;  
 const int FrontIRread = A2;
+const int TTLPin = 12;
 unsigned short resetfp = 1;
 
 unsigned long time;
@@ -55,6 +58,7 @@ void setup() {
     
   pinMode(FlushPress, INPUT_PULLUP);  
   pinMode(SwitchLed, OUTPUT);
+  pinMode(TTLPin, OUTPUT);
   
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
@@ -119,7 +123,8 @@ if (Frewtrig>5){
   }
   
     if (Lrewtrig>5){
-    // open solenoid
+    // open left solenoid
+  TTLout();
   Serial.println("Open Left Solenoid");
   reward(LeftSolenoid);
   panelrotate();
@@ -135,7 +140,8 @@ if (Frewtrig>5){
   } 
  
  if (Rrewtrig>5){
-  // Right solenoid
+  // Open right solenoid
+  TTLout();
   Serial.println("Open Right Solenoid ");
   reward(RightSolenoid);
   panelrotate();
@@ -150,7 +156,7 @@ if (Frewtrig>5){
   delay(1000);
   }
   
-  if (time+10000<millis()){
+  if (time+10000<millis()){ // if waits too long, reset
     Frewtrig=0;
     resetfp=1;
   }
@@ -274,5 +280,14 @@ void panelrotate(){
     }
 //    TexturePanelStepper->release();
     curr_pos = next_pos;
+}
+
+void TTLout(){
+//Serial.println("UP");
+digitalWrite(TTLPin, HIGH);
+delay(200);
+//Serial.println("DOWN");
+digitalWrite(TTLPin, LOW);
+//delay(100);
 }
 

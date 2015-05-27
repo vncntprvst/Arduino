@@ -27,12 +27,20 @@ void setup() {
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
-  myMotor->setSpeed(1);  // 10 rpm   
+  myMotor->setSpeed(20);  // 10 rpm   
+  myMotor->step(1,FORWARD,SINGLE);
 }
 
 long timer;
 void loop() {
-
+  /*myMotor->step(100, FORWARD, SINGLE);
+  delay(500);
+ // while(millis()-timer < 250){
+  //myMotor->step(0,FORWARD,MICROSTEP);
+ // }
+  myMotor->step(100, BACKWARD, SINGLE);
   delay(10000); 
+*/
+
 
 }
