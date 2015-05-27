@@ -37,7 +37,7 @@ const int LeftIRread = A0;
 const int RightIRread = A1;  
 const int FrontIRread = A2;
 const int TTLPin = 12;
-unsigned short resetfp = 1;
+unsigned short resetfp = 1; // reset front panel "exploration"'s validation
 
 unsigned long time;
 
@@ -64,8 +64,8 @@ int rot_seq; // number of panel rotations
 //const byte numLEDs = 2;
 //byte ledPin[numLEDs] = {12, 13};
 
-byte SessionStatus[2] = {0, 0}; // 1/ Run [ON/OFF] 2/ Reset
-byte TrialType = 0;
+byte SessionStatus[2] = {0, 0}; // 1/ Run [ON/OFF (1/0)] 2/ Reset (1)
+byte TrialType = 0; // 0, no trial going on; 1 left trial; 2, right trial // left or right doesn't matter here
 
 // GUI-related variables
 const byte buffSize = 40;
@@ -110,13 +110,11 @@ void setup() {
 //=============
 
 void loop() {
-  while (digitalRead(FlushPress) == LOW){
-    rewardflush();
-  }
-  curMillis = millis();
+
+  // curMillis = millis();
   getDataFromPC();
 
-  if(SessionStatus[1] == 1){ 
+  if(SessionStatus[1] == 1){ // reset counters
     arrayinit();
     RewCount=0;
     Lrewtrig=0;
@@ -124,90 +122,97 @@ void loop() {
     Frewtrig=0;
   }
 
+  while (SessionStatus[0] == 0){ 
+    getDataFromPC();
+    while (digitalRead(FlushPress) == LOW){
+      rewardflush();
+    }
+  }
+
   LeftSolenoid->run(RELEASE);    // make sure to close solenoids
   RightSolenoid->run(RELEASE);
-    digitalWrite(SwitchLed,LOW);   // and switch off switch LED
+  digitalWrite(SwitchLed,LOW);   // and switch off switch LED
     
-    FrontIRval = analogRead(FrontIRread); // read the input pin
+  FrontIRval = analogRead(FrontIRread); // read the input pin
   //  Serial.print("Front IR ");
   //  Serial.println(FrontIRval);
-    LeftIRval = analogRead(LeftIRread);    
+  LeftIRval = analogRead(LeftIRread);    
   //  Serial.print(" Left IR ");
   //  Serial.print(LeftIRval);
-    RightIRval = analogRead(RightIRread); 
+  RightIRval = analogRead(RightIRread); 
   //  Serial.print(" Right IR ");
   //  Serial.println(RightIRval);
 
-while (SessionStatus[0] == 1){ 
+  if (SessionStatus[0] == 1){ 
 
-  if ((FrontIRval > (Fbaseline + 300))){
-      Frewtrig=Frewtrig+1;
-  }    
+    if ((FrontIRval > (Fbaseline + 300))){
+        Frewtrig=Frewtrig+1;
+    }    
 
-  if (Frewtrig>5){
-    if (time+1000<millis() && resetfp==1){
-    Serial.println("Front panel explored");
-      time = millis();
-      resetfp=0;
-    }
-    
-    if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
-      Lrewtrig=Lrewtrig+1;
-    }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
-      Rrewtrig=Rrewtrig+1;
-    }
-    
-      if (Lrewtrig>5){
-      // open left solenoid
-    TTLout();
-    Serial.println("Open Left Solenoid");
-    reward(LeftSolenoid);
-    panelrotate(); // set for next trial
-    RewCount=RewCount+1;
-    sendToPC(1,RewCount); // result current trial
-    Serial.print("Reward count: ");
-    Serial.println(RewCount);
-    Lrewtrig=0;
-    Rrewtrig=0;
-    Frewtrig=0;
-    resetfp=1;
-    // refractory period
-    delay(1000);
-    } 
-   
-   if (Rrewtrig>5){
-    // Open right solenoid
-    TTLout();
-    Serial.println("Open Right Solenoid ");
-    reward(RightSolenoid);
-    panelrotate(); // set for next trial
-    RewCount=RewCount+1;
-    sendToPC(2,RewCount); // result current trial
-    Serial.print("Reward count: ");
-    Serial.println(RewCount);
-    Rrewtrig=0;
-    Lrewtrig=0;
-    Frewtrig=0;
-    resetfp=1;
-    // refractory period
-    delay(1000);
-    }
-    
-    if (time+10000<millis()){ // if waits too long, reset
+    if (Frewtrig>5){
+      if (time+1000<millis() && resetfp==1){
+      Serial.println("Front panel explored");
+        time = millis();
+        resetfp=0;
+      }
+      
+      if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
+        Lrewtrig=Lrewtrig+1;
+      }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
+        Rrewtrig=Rrewtrig+1;
+      }
+      
+        if (Lrewtrig>5){
+        // open left solenoid
+      TTLout();
+      Serial.println("Open Left Solenoid");
+      reward(LeftSolenoid);
+      panelrotate(); // set for next trial
+      RewCount=RewCount+1;
+      sendToPC(1,RewCount); // result current trial
+      Serial.print("Reward count: ");
+      Serial.println(RewCount);
+      Lrewtrig=0;
+      Rrewtrig=0;
       Frewtrig=0;
       resetfp=1;
-    }
+      // refractory period
+      delay(1000);
+      } 
+     
+     if (Rrewtrig>5){
+      // Open right solenoid
+      TTLout();
+      Serial.println("Open Right Solenoid ");
+      reward(RightSolenoid);
+      panelrotate(); // set for next trial
+      RewCount=RewCount+1;
+      sendToPC(2,RewCount); // result current trial
+      Serial.print("Reward count: ");
+      Serial.println(RewCount);
+      Rrewtrig=0;
+      Lrewtrig=0;
+      Frewtrig=0;
+      resetfp=1;
+      // refractory period
+      delay(1000);
+      }
+      
+      if (time+10000<millis()){ // if waits too long, reset
+        Frewtrig=0;
+        resetfp=1;
+      }
+      
+     } 
+
+
+    //~ replyToPC();
     
-   } 
-
-
-  //~ replyToPC();
-  
-  // In initial version, Arduino sends a number 
-  // (roughly the number of half-seconds since RESET) 
-  // to the PC every 3.5 seconds and the Python program 
-  // checks for and displays any new data every 2 seconds
- }
+    // In initial version, Arduino sends a number 
+    // (roughly the number of half-seconds since RESET) 
+    // to the PC every 3.5 seconds and the Python program 
+    // checks for and displays any new data every 2 seconds
+   }
 }
 
 //=============
