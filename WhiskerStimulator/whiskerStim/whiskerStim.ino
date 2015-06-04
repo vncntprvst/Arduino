@@ -1,148 +1,242 @@
-/* Program to run the whisker stimulator off the Arduino. Pulses are sent
-to a particular magnet selected by a joystick. The pulse frequency can be
-altered by rotating a potentiometer. Able to switch between 4-magnet and
-single-magnet modes.
-*/
+// Pin Mappping:
+// Pin 2: Rotary Encoder PinA
+// Pin 3: Rotary Encoder PinB
+// Pin 4: Heating Pad
+// Pin 5: Buzzer
+// Pin 6: LCD pin3 (contrast)
+// Pin 7: Sensor
+// Pin 14(A0): LCD pin 4
+// Pin 15(A1): LCD pin 6
+// Pin 16(A2): LCD pin 11
+// Pin 17(A3): LCD pin 12
+// Pin 18(A4): LCD pin 13
+// Pin 19(A5): LCD pin 14
 
-// Pins for each magnet
-const int m1 =  3;         
-const int m2 =  5;            
-const int m3 = 6;
-const int m4 = 9;
-const int m5 = 10;
+#include <LiquidCrystal.h>
 
-// Pins for joystick
-// Joystick is aligned when m1 is facing up
-const int j1 = 2; // up, green, corresponds to m1
-const int j2 = 4; // right, blue, corresponds to m2
-const int j3 = 7; // down, white, corresponds to m3
-const int j4 = 8; // left, yellow, corresponds to m4
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(14, 15, 16, 17, 18, 19);
 
-// Pin for single magnet/4 magnet select switch
-const int selectPin = 12; 
+int rotEncA = 2; // Rotary Encoder pinA
+int rotEncB = 3; // Rotary Encoder pinB
+int LCD_contrast = 6; 
 
-// Pin for TTL out
-const int TTLPin1 = 11; // Digital TX p 
 
-// main variables
-float currentTime; // Variable to check current time (ms)
-float previousTime = 0; // Variable compared against currentTime 
-                        // to decide whether to send pulse 
-float pulseTimes; // Variable to store time of each pulse start(ms)
-float pulseTimee; // Variable to store time of each pulse end (ms)
+volatile float freq=10;
+volatile boolean halfleft = false;      // Used in both interrupt routines
+volatile boolean halfright = false;
 
-float startTime;
+float maxfreq = 100;
+float minfreq = 1;
 
-void setup() {
-  Serial.begin(9600);
-  // initialize the magnet pins as outputs:
-  pinMode(m1, OUTPUT);   
-  pinMode(m2, OUTPUT);
-  pinMode(m3, OUTPUT); 
-  pinMode(m4, OUTPUT);
-  pinMode(m5, OUTPUT);
-  
-  pinMode(A0, INPUT); // Analog input, reads voltage from potentiometer
-  
-  // initialize the joystick pins as inputs:
-  pinMode(j1, INPUT);
-  pinMode(j2, INPUT);
-  pinMode(j3, INPUT);
-  pinMode(j4, INPUT);
-  
-  pinMode(selectPin, INPUT);
-  pinMode(TTLPin1, OUTPUT);
-  
-}
+int m0 = 8;
+int m1 = 4;
+int m2 = 5;
+int m3 = 6;
+int m4 = 7;
 
-int mag; // variable to store current magnet to pulse
-int lastmag; // variable to store the previous magnet that was pulsed
+int m =1;
+int MODE = 1;
+boolean OUT = LOW;
 
-void loop(){
+int modeButtonL = 10;
+int modeButtonR = 9;
 
-int selectMode = digitalRead(selectPin);
-if(selectMode == HIGH){
-lastmag = mag;
-mag = readJoystick(); // Determine which magnet to pulse from joystick
-} else{
- mag = m5; 
-}
-//Serial.print("Magnet "); Serial.print(mag); Serial.print(" selected");
+long lastButton;
+long currentTime;
+long lastTime;
+float f =0;
+float T;
 
-int Aval = analogRead(A0); // Get voltage across potentiometer
-
-// returns value between 0 to 1023
-float interval = 1000000; //50+Aval-(0.2*Aval); // Scale value to desired frequency range (~1 to 20Hz)
-//Serial.print("interval "); Serial.println(interval);
-
-currentTime = micros();
-//Serial.print("currentTime "); Serial.println(currentTime);
-//Serial.print("time diff "); Serial.println(currentTime - previousTime);
-if(currentTime - previousTime >= interval-650){
-  // If enough time has elapsed, send pulse to mag
-//    pulseTimes = millis();
-//    Serial.print("pulseTime "); Serial.println(pulseTimes);
-    pulse(mag);
-  //  pulseTimee = millis();
-    //Serial.print("pulseTime "); Serial.println(pulseTimee);
-    
-    previousTime = currentTime;
-  //  Serial.print("previousTime "); Serial.println(previousTime);
-  //  delay(30);
-}
-
-//float freq = 1000/interval; // pulse frequency in Hz
-//Serial.print(" at frequency "); Serial.print(freq); Serial.println(" Hz"); // Display frequency
-}
-
-// Reads the direction of the joy stick and sets the corresponding 
-// magnet as the one to pulse. If nothing is selected, return
-// the previously selected magnet
-int readJoystick(){
-  int j1State = digitalRead(j1);
-  int j2State = digitalRead(j2);
-  int j3State = digitalRead(j3);
-  int j4State = digitalRead(j4);
-  
-  if(j1State==LOW){
-    return m1;
-  }
-  else if(j2State==LOW){
-    return m2;
-  }
-  else if(j3State==LOW){
-    return m3;
-  }
-  else if(j4State==LOW){
-    return m4;
-  }
-  else{
-    // If nothing has been selected, keep pulsing the same magnet
-    return lastmag;
-  }
+void setup(void)
+{
+  pinInit();
+  lcd.begin(16, 2);
+  resetSolenoids();
+  dispMode(m);
 }
 
 
-// Sends a pulse to a magnet
-// pulse width = 30 ms
-// rise/fall time = 10 ms => max 20Hz
-void pulse(int m){
-  TTLpulse(TTLPin1); // send TTL pulse at begining each stim  
-  for(int i = 0; i<250; i+=25){
-    analogWrite(m, i); 
-    delay(1);
+void loop(void)
+{ 
+
+  boolean rVal = digitalRead(modeButtonR);
+  boolean lVal = digitalRead(modeButtonL);
+
+  if (rVal == HIGH && (currentTime - lastButton)>200) {    
+    if(MODE == 6){
+      MODE = 0;
+    } else{
+      MODE++;
+    }
+    resetSolenoids();
+    lastButton = currentTime;
+  } else if(lVal == HIGH && (currentTime - lastButton)>200) {
+ 
+    if(MODE == 0){
+      MODE = 6;
+    } else{
+      MODE--;
+    }
+    resetSolenoids();
+    lastButton = currentTime;
+  }
+
+/////// Display Frequency /////////
+if(f != freq || m != MODE){
+    f = freq;
+    m = MODE;
+    dispMode(m);
+    lcd.setCursor(0,0);
+    if(freq<10){
+      lcd.print(" ");
+    }
+    if(freq<100){
+      lcd.print(" ");
+    }
+    lcd.print(freq,0);
+    lcd.print(" Hz  ");
+}
+////////////////////////////
+
+//////////////////////////
+
+  T = 1000/freq; // half-Period in microseconds
+  currentTime = millis();
+
+if(currentTime - lastTime >= T/2){
+  OUT = !OUT;
+    // 4-magnets
+    if(MODE <5){
+     pulse(OUT,MODE);
+    }else{
+     pulse2(OUT,MODE); 
+    }
+  lastTime = currentTime;
+}
+
+}
+
+
+void resetSolenoids(){
+ digitalWrite(m0,LOW); 
+ digitalWrite(m1,LOW); 
+ digitalWrite(m2,LOW); 
+ digitalWrite(m3,LOW); 
+ digitalWrite(m4,LOW); 
+}
+
+void pulse(boolean out, int mode){
+  if(mode == 0){
+    digitalWrite(m0,out);
+  } else if(mode == 1){
+    digitalWrite(m1,out);
+  } else if(mode == 2){
+    digitalWrite(m2,out);
+  } else if(mode == 3){
+    digitalWrite(m3,out); 
+  } else if(mode == 4){
+    digitalWrite(m4,out); 
   } 
-  analogWrite(m,255);
-  delay(30);
-  for(int i = 255; i>0; i-=25){
-    analogWrite(m, i); 
-    delay(1);
+}
+
+void pulse2(boolean out, int mode){
+  if(mode == 5){
+    digitalWrite(m1,out);
+    digitalWrite(m3,!out);
+  } else if(mode == 6){
+    digitalWrite(m2,out);
+    digitalWrite(m4,!out); 
   }
 }
 
-//Send TTL pulse
-void TTLpulse(int ttlpin){
-  digitalWrite(ttlpin, HIGH); 
-  delay(50);
-  digitalWrite(ttlpin, LOW); 
+void dispMode(int mode){
+  lcd.clear();
+  lcd.setCursor(2,1);
+  lcd.print("MODE: ");
+  if(mode == 0){
+   lcd.print("Single"); 
+  }else if(mode == 1){
+    lcd.setCursor(10,0);
+    lcd.print("M1"); 
+  }else if(mode == 2){
+    lcd.setCursor(12,1);
+    lcd.print("M2");
+  }else if(mode == 3){
+    lcd.setCursor(10,1);
+    lcd.print("M3");
+  }else if(mode == 4){
+    lcd.setCursor(8,1);
+    lcd.print("M4");
+  }else if(mode == 5){
+    lcd.setCursor(10,0);
+    lcd.print("M1"); 
+    lcd.setCursor(10,1);
+    lcd.print("M3");
+  }else if(mode == 6){
+    lcd.setCursor(12,1);
+    lcd.print("M2");
+    lcd.setCursor(8,1);
+    lcd.print("M4");
+  }
+    
 }
+
+
+//////////////////// Rotary Encoder Interrupts //////////////////
+//http://home.online.no/~togalaas/rotary_encoder/
+void isr_2(){                                              // Pin2 went LOW
+  delay(1);                                                // Debounce time
+  if(digitalRead(rotEncA) == LOW){                               // Pin2 still LOW ?
+    if(digitalRead(rotEncB) == HIGH && halfright == false){      // -->
+      halfright = true;                                    // One half click clockwise
+    } 
+    if(digitalRead(rotEncB) == LOW && halfleft == true){         // <--
+      halfleft = false;      // One whole click counter-
+      if(freq<maxfreq){
+        freq+=1;                                            // clockwise
+      }
+    }
+  }
+}
+void isr_3(){                                             // Pin3 went LOW
+  delay(1);                                               // Debounce time
+  if(digitalRead(rotEncB) == LOW){                              // Pin3 still LOW ?
+    if(digitalRead(rotEncA) == HIGH && halfleft == false){      // <--
+      halfleft = true;                                    // One half  click counter-
+    }                                                     // clockwise
+    if(digitalRead(rotEncA) == LOW && halfright == true){       // -->
+      halfright = false;                                  // One whole click clockwise
+      if(freq>minfreq){
+        freq-=1; 
+      }
+    }
+  }
+}
+
+void pinInit(){
+    // Initialize LCD
+  pinMode(16,OUTPUT); // LCD 11 to pin 16(A2)
+  pinMode(17,OUTPUT); // LCD 12 to pin 17(A3)
+  pinMode(18,OUTPUT); // LCD 13 to pin 18(A4)
+  pinMode(19,OUTPUT); // LCD 14 to pin 19(A5)
+
+  //Initialize Rotary Encoder
+  pinMode(rotEncA, INPUT);
+  digitalWrite(rotEncA, HIGH);                // Turn on internal pullup resistor
+  pinMode(rotEncB, INPUT);
+  digitalWrite(rotEncB, HIGH);                // Turn on internal pullup resistor
+  attachInterrupt(0, isr_2, FALLING);   // Call isr_2 when digital pin 2 goes LOW
+  attachInterrupt(1, isr_3, FALLING);   // Call isr_3 when digital pin 3 goes LOW
+  // Initialize Solenoids
+  pinMode(m0,OUTPUT); 
+  pinMode(m1,OUTPUT); 
+  pinMode(m2,OUTPUT);
+  pinMode(m3,OUTPUT); 
+  pinMode(m4,OUTPUT); 
+
+  pinMode(modeButtonL,INPUT);
+  pinMode(modeButtonR,INPUT);
+  Serial.begin(9600);
+}
+
