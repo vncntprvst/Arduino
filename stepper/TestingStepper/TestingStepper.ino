@@ -57,7 +57,7 @@ void loop() {
 //  myMotor->step(100, FORWARD, MICROSTEP); 
 //  delay(250);
 //  myMotor->step(150, BACKWARD, MICROSTEP);
-    delay(5000);
+    delay(1000);
   //myMotor->release();
     //timer = millis();
    //while(millis()-timer < 5000){
