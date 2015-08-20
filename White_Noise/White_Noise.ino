@@ -5,20 +5,23 @@
  */
  
 //  pin setup
-const int speakerPin = 9;
+const int RspeakerPin = 3;
+const int LspeakerPin = 4;
 
 //  for noise generation
 unsigned long int reg;
 
   void setup() {
-  pinMode(speakerPin,OUTPUT);
+  pinMode(RspeakerPin,OUTPUT);
+  pinMode(LspeakerPin,OUTPUT);
+  
   // Arbitrary inital value; must not be zero
   reg = 0x55aa55aaL; //The seed for the bitstream. It can be anything except 0.
 }
 
 void loop() {
 //  for (int i=0; i<255; i++) { // this is to test speakers 
-//    analogWrite(speakerPin,i);
+//    analogWrite(RspeakerPin,i);
 //  delay(10);
 //  }
 //    int potValue = analogRead(potPin);  //  0 to 1023
@@ -48,7 +51,7 @@ void generateNoise(int frequency) {
   reg = newr;
   
   // Drive speaker pin from bit 0 of 'reg'
-  digitalWrite(speakerPin, reg & 1);
+  digitalWrite(LspeakerPin, reg & 1);
   
   // Delay (50) corresponds to 20kHz, but the actual frequency of updates
   // will be lower, due to computation time and loop overhead
