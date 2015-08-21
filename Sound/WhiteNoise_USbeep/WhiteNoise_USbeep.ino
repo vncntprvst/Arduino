@@ -54,21 +54,23 @@ void setup() {
 
 void loop() {
   sound_type=ReadInstruction();
-  unsigned long timeNow = 0;
-  unsigned long initTime;
-  initTime = millis();
+  unsigned long initTime = millis();
   
   if (sound_type==1){
-    while ((timeNow - initTime) < 1000){
+    while ((unsigned long)(millis() - initTime) < 1000){
      generateNoise(frequency);
 //     SetGain();
-     timeNow = millis();
     }
+    delay(500);
   }
   else if (sound_type > 1){
      // generate beep
-  tone(RspeakerPin, pitch, 500);
-  delay(500);
+//     for(uint8_t i=300; i>250; i--)
+      playTone(300,200); //("tone",duration)
+      playTone(200,200);
+//     for(uint8_t i=350; i<400; i++)
+//      playTone(i,9); //("tone",duration)
+    delay(500);
   }
   sound_type=0;
 }
@@ -118,23 +120,32 @@ void generateNoise(int frequency) {
 //  return scaledVal;
 //}
 
+// Play a tone for a specific duration.  value is not frequency to save some
+//   cpu cycles in avoiding a divide.  
+void playTone(int16_t tonevalue, int duration) {
+  for (long i = 0; i < duration * 1000L; i += tonevalue * 2) {
+     digitalWrite(RspeakerPin, HIGH);
+     delayMicroseconds(tonevalue);
+     digitalWrite(RspeakerPin, LOW);
+     delayMicroseconds(tonevalue);
+  }     
+}
+
 unsigned long ReadInstruction() {
 
   unsigned long highCounter = 0;
   int pulse = LOW;
   int lastPulse = LOW;
-  unsigned long timeNow = 0;
-  unsigned long initTime;
+  unsigned long initTime = millis();
   
   initTime = millis();
   
-  while ((timeNow - initTime) < 200){
+  while ((unsigned long)(millis() - initTime) < 2000){
     pulse = digitalRead(PotPin);
     if (pulse != lastPulse) { // pulse has changed
       lastPulse = pulse;
       if (pulse == HIGH) highCounter++;
     } 
-      timeNow = millis();
   }
   return highCounter;
 }
