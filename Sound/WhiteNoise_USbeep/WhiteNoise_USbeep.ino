@@ -29,6 +29,7 @@ int pitch = map(700, 400, 1000, 120, 1500);
 
 // instruction
 unsigned long sound_type=0;
+int standby = 1;
 
 void setup() {
   
@@ -53,25 +54,35 @@ void setup() {
 }
 
 void loop() {
+  while (digitalRead(PotPin) == LOW && standby == 1) {
+    //wait for instructions
+//    playTone(400,100);
+//    delay(1000);
+  }
+  playTone(150,100);
+  standby = 0;
   sound_type=ReadInstruction();
   unsigned long initTime = millis();
-  
-  if (sound_type==1){
-    while ((unsigned long)(millis() - initTime) < 1000){
-     generateNoise(frequency);
-//     SetGain();
+//  if ((unsigned long)(millis() - initTime) > 2000) {
+    if (sound_type==1){
+      while ((unsigned long)(millis() - initTime) < 1000){
+       generateNoise(frequency);
+  //     SetGain();
+      }
+      delay(200);
+      standby =1;
     }
-    delay(500);
-  }
-  else if (sound_type > 1){
-     // generate beep
-//     for(uint8_t i=300; i>250; i--)
-      playTone(300,200); //("tone",duration)
-      playTone(200,200);
-//     for(uint8_t i=350; i<400; i++)
-//      playTone(i,9); //("tone",duration)
-    delay(500);
-  }
+    else if (sound_type > 1){
+       // generate beep
+  //     for(uint8_t i=300; i>250; i--)
+        playTone(300,200); //("tone",duration)
+        playTone(200,200);
+  //     for(uint8_t i=350; i<400; i++)
+  //      playTone(i,9); //("tone",duration)
+      delay(200);
+      standby =1;
+    }
+//  }
   sound_type=0;
 }
 
@@ -140,7 +151,7 @@ unsigned long ReadInstruction() {
   
   initTime = millis();
   
-  while ((unsigned long)(millis() - initTime) < 2000){
+  while ((unsigned long)(millis() - initTime) < 50){
     pulse = digitalRead(PotPin);
     if (pulse != lastPulse) { // pulse has changed
       lastPulse = pulse;
