@@ -31,7 +31,7 @@ const int flushcycletime = 20; // solenoid turn off staircase period
 const int SoundTriggerPin=11;
 
 int curr_pos=0; // panel position, 0 or 1
-int next_pos;
+int next_pos=50;
 int rot_seq; // number of panel rotations
 
 
@@ -52,37 +52,40 @@ void setup() {
 
 void loop() {
 
-      TTLout();
-
+      TTLout(2); // for reward US
+      TTLout(1); // start WN
       panelrotate(); // set for next trial 
-      
+      TTLout(1); // end WN
       delay(1000);
 }
 
 //=============
 
-void TTLout(){
+void TTLout(int instruct){
 //HIGH triggers trinkets listening
 Serial.println("TTL out");
-digitalWrite(SoundTriggerPin, HIGH); // trigger
+switch (instruct) {
+    case 1: 
+    // white noise
+      digitalWrite(SoundTriggerPin, HIGH); // trigger
 // NB: 
 // if control PlayTone enabled in WhiteNoise_USbeep
 // need to add a total of 100ms (or control beep's duration)
 // to wait for if statment 
-delay(5); 
-
-//instructions
-digitalWrite(SoundTriggerPin, LOW); // White noise
-
-// Add more TTL for beep
-//delay(5);
-//digitalWrite(SoundTriggerPin, HIGH); // 1
-//delay(5);
-//digitalWrite(SoundTriggerPin, LOW); 
-//delay(5);
-//digitalWrite(SoundTriggerPin, HIGH); // 2
-//delay(10);
-//digitalWrite(SoundTriggerPin, LOW); 
+      delay(5); 
+      digitalWrite(SoundTriggerPin, LOW); // White noise
+      break;
+    case 2:
+      // US
+      digitalWrite(SoundTriggerPin, HIGH); // trigger
+      delay(5); 
+      digitalWrite(SoundTriggerPin, LOW);
+      delay(5);
+      digitalWrite(SoundTriggerPin, HIGH); // +1
+      delay(5);
+      digitalWrite(SoundTriggerPin, LOW); 
+      break;
+  }
 }
 
 //=============

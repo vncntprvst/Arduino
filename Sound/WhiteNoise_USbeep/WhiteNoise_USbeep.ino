@@ -63,14 +63,16 @@ void loop() {
                        // need to adjust first TTL duration for that 100ms 
   standby = 0;
   sound_type=ReadInstruction();
-  unsigned long initTime = millis();
+//  unsigned long initTime = millis();
 //  if ((unsigned long)(millis() - initTime) > 2000) {
     if (sound_type==1){
-      while ((unsigned long)(millis() - initTime) < 1000){
+//      while ((unsigned long)(millis() - initTime) < 1000)
+  // changed from fixed duration to having WN on until panel rotation is done
+        while (digitalRead(PotPin) == LOW) {
        generateNoise(frequency);
   //     SetGain();
       }
-      delay(200);
+      delay(5); // just waiting for TTL to come down
       standby =1;
     }
     else if (sound_type > 1){
@@ -80,11 +82,42 @@ void loop() {
         playTone(200,200);
   //     for(uint8_t i=350; i<400; i++)
   //      playTone(i,9); //("tone",duration)
-      delay(200);
+  //      delay(200);
       standby =1;
     }
 //  }
   sound_type=0;
+}
+
+// Play a tone for a specific duration.  value is not frequency to save some
+//   cpu cycles in avoiding a divide.  
+void playTone(int16_t tonevalue, int duration) {
+  for (long i = 0; i < duration * 1000L; i += tonevalue * 2) {
+     digitalWrite(RspeakerPin, HIGH);
+     delayMicroseconds(tonevalue);
+     digitalWrite(RspeakerPin, LOW);
+     delayMicroseconds(tonevalue);
+  }     
+}
+
+unsigned long ReadInstruction() {
+
+  unsigned long highCounter = 0;
+  int pulse = LOW;
+  int lastPulse = LOW;
+  unsigned long initTime = millis();
+  
+  initTime = millis();
+  
+  while ((unsigned long)(millis() - initTime) < 20){
+    // check incoming TTL for next 20ms
+    pulse = digitalRead(PotPin);
+    if (pulse != lastPulse) { // pulse has changed
+      lastPulse = pulse;
+      if (pulse == HIGH) highCounter++;
+    } 
+  }
+  return highCounter;
 }
 
 void generateNoise(int frequency) {
@@ -130,36 +163,4 @@ void generateNoise(int frequency) {
 //     scaledVal=-28;
 //  }
 //  return scaledVal;
-//}
-
-// Play a tone for a specific duration.  value is not frequency to save some
-//   cpu cycles in avoiding a divide.  
-void playTone(int16_t tonevalue, int duration) {
-  for (long i = 0; i < duration * 1000L; i += tonevalue * 2) {
-     digitalWrite(RspeakerPin, HIGH);
-     delayMicroseconds(tonevalue);
-     digitalWrite(RspeakerPin, LOW);
-     delayMicroseconds(tonevalue);
-  }     
-}
-
-unsigned long ReadInstruction() {
-
-  unsigned long highCounter = 0;
-  int pulse = LOW;
-  int lastPulse = LOW;
-  unsigned long initTime = millis();
-  
-  initTime = millis();
-  
-  while ((unsigned long)(millis() - initTime) < 20){
-    // check incoming TTL for next 20ms
-    pulse = digitalRead(PotPin);
-    if (pulse != lastPulse) { // pulse has changed
-      lastPulse = pulse;
-      if (pulse == HIGH) highCounter++;
-    } 
-  }
-  return highCounter;
-}
-   
+//} 
