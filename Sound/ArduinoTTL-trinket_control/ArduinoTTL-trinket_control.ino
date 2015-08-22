@@ -56,7 +56,7 @@ void loop() {
 
       panelrotate(); // set for next trial 
       
-      delay(2000);
+      delay(1000);
 }
 
 //=============
@@ -64,18 +64,25 @@ void loop() {
 void TTLout(){
 //HIGH triggers trinkets listening
 Serial.println("TTL out");
-digitalWrite(SoundTriggerPin, HIGH);
-delay(10);
+digitalWrite(SoundTriggerPin, HIGH); // trigger
+// NB: 
+// if control PlayTone enabled in WhiteNoise_USbeep
+// need to add a total of 100ms (or control beep's duration)
+// to wait for if statment 
+delay(5); 
+
 //instructions
-digitalWrite(SoundTriggerPin, LOW); // 1
-delay(20);
-digitalWrite(SoundTriggerPin, HIGH);
-delay(10);
-digitalWrite(SoundTriggerPin, LOW); // 2
-//delay(2);
-//digitalWrite(SoundTriggerPin, HIGH);
-//delay(2);
-//digitalWrite(SoundTriggerPin, LOW); // 3
+digitalWrite(SoundTriggerPin, LOW); // White noise
+
+// Add more TTL for beep
+//delay(5);
+//digitalWrite(SoundTriggerPin, HIGH); // 1
+//delay(5);
+//digitalWrite(SoundTriggerPin, LOW); 
+//delay(5);
+//digitalWrite(SoundTriggerPin, HIGH); // 2
+//delay(10);
+//digitalWrite(SoundTriggerPin, LOW); 
 }
 
 //=============
