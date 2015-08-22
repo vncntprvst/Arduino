@@ -29,6 +29,7 @@ int pitch = map(700, 400, 1000, 120, 1500);
 
 // instruction
 unsigned long sound_type=0;
+unsigned long stop_noise=0;
 int standby = 1;
 
 void setup() {
@@ -68,11 +69,14 @@ void loop() {
     if (sound_type==1){
 //      while ((unsigned long)(millis() - initTime) < 1000)
   // changed from fixed duration to having WN on until panel rotation is done
-        while (digitalRead(PotPin) == LOW) {
+//        while (digitalRead(PotPin) == LOW) 
+
+      do{ 
        generateNoise(frequency);
+       stop_noise=ReadInstruction();
   //     SetGain();
-      }
-      delay(5); // just waiting for TTL to come down
+      } while (stop_noise==0);
+//      delay(5); // just waiting for TTL to come down
       standby =1;
     }
     else if (sound_type > 1){
