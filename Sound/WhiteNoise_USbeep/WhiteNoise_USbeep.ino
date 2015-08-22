@@ -59,7 +59,8 @@ void loop() {
 //    playTone(400,100);
 //    delay(1000);
   }
-  playTone(150,100);
+//  playTone(150,100); // control beep to check if exits while loop
+                       // need to adjust first TTL duration for that 100ms 
   standby = 0;
   sound_type=ReadInstruction();
   unsigned long initTime = millis();
@@ -151,7 +152,8 @@ unsigned long ReadInstruction() {
   
   initTime = millis();
   
-  while ((unsigned long)(millis() - initTime) < 50){
+  while ((unsigned long)(millis() - initTime) < 20){
+    // check incoming TTL for next 20ms
     pulse = digitalRead(PotPin);
     if (pulse != lastPulse) { // pulse has changed
       lastPulse = pulse;
