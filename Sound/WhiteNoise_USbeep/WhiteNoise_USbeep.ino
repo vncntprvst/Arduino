@@ -29,7 +29,7 @@ int pitch = map(700, 400, 1000, 120, 1500);
 
 // instruction
 unsigned long sound_type=0;
-unsigned long stop_noise=0;
+//unsigned long stop_noise=0;
 int standby = 1;
 
 void setup() {
@@ -64,29 +64,28 @@ void loop() {
                        // need to adjust first TTL duration for that 100ms 
   standby = 0;
   sound_type=ReadInstruction();
-//  unsigned long initTime = millis();
+  unsigned long initTime = millis();
 //  if ((unsigned long)(millis() - initTime) > 2000) {
     if (sound_type==1){
-//      while ((unsigned long)(millis() - initTime) < 1000)
+      while ((unsigned long)(millis() - initTime) < 2000){
   // changed from fixed duration to having WN on until panel rotation is done
 //        while (digitalRead(PotPin) == LOW) 
-
-      do{ 
        generateNoise(frequency);
-       stop_noise=ReadInstruction();
+//       stop_noise=ReadInstruction();
   //     SetGain();
-      } while (stop_noise==0);
-//      delay(5); // just waiting for TTL to come down
+//       while (stop_noise==0);
+      }
+//      delay(200); // just waiting for TTL to come down
       standby =1;
     }
     else if (sound_type > 1){
        // generate beep
   //     for(uint8_t i=300; i>250; i--)
-        playTone(300,200); //("tone",duration)
-        playTone(200,200);
+        playTone(300,50); //("tone",duration)
+        playTone(200,50);
   //     for(uint8_t i=350; i<400; i++)
   //      playTone(i,9); //("tone",duration)
-  //      delay(200);
+//      delay(200);
       standby =1;
     }
 //  }
@@ -113,8 +112,8 @@ unsigned long ReadInstruction() {
   
   initTime = millis();
   
-  while ((unsigned long)(millis() - initTime) < 20){
-    // check incoming TTL for next 20ms
+  while ((unsigned long)(millis() - initTime) < 10){
+    // check incoming TTL for next 10ms
     pulse = digitalRead(PotPin);
     if (pulse != lastPulse) { // pulse has changed
       lastPulse = pulse;
