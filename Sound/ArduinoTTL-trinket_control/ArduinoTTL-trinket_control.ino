@@ -51,11 +51,12 @@ void setup() {
 //=============
 
 void loop() {
-
+      
       TTLout(2); // for reward US
+      delay(110); // delay needs to be higher than bleep duration
       TTLout(1); // start WN
       panelrotate(); // set for next trial 
-      TTLout(1); // end WN
+//      TTLout(1); // end WN
       delay(1000);
 }
 
@@ -65,6 +66,7 @@ void TTLout(int instruct){
 //HIGH triggers trinkets listening
 Serial.println("TTL out");
 switch (instruct) {
+    // both cases should total 10ms
     case 1: 
     // white noise
       digitalWrite(SoundTriggerPin, HIGH); // trigger
@@ -72,18 +74,20 @@ switch (instruct) {
 // if control PlayTone enabled in WhiteNoise_USbeep
 // need to add a total of 100ms (or control beep's duration)
 // to wait for if statment 
-      delay(5); 
+      delay(2); 
       digitalWrite(SoundTriggerPin, LOW); // White noise
+      delay(8);
       break;
     case 2:
       // US
       digitalWrite(SoundTriggerPin, HIGH); // trigger
-      delay(5); 
+      delay(2); 
       digitalWrite(SoundTriggerPin, LOW);
-      delay(5);
+      delay(2);
       digitalWrite(SoundTriggerPin, HIGH); // +1
-      delay(5);
-      digitalWrite(SoundTriggerPin, LOW); 
+      delay(2);
+      digitalWrite(SoundTriggerPin, LOW);
+      delay(4);
       break;
   }
 }
