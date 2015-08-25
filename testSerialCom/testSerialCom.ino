@@ -18,6 +18,8 @@ unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 3500;
 
+int TrialCount=0;
+
 // sound stimulus
 //const int SoundTriggerPin=11;
 
@@ -36,7 +38,7 @@ pinMode(13, OUTPUT);
 void loop() {
 
   // curMillis = millis();
-  Serial.println("Start");
+//  Serial.println("Start");
   getDataFromPC();
 
   if(SessionStatus[1] == 1){ // reset counters
@@ -53,14 +55,21 @@ void loop() {
   if (SessionStatus[0] == 1){ 
     //  Serial.println(lightValue);
   digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(500);              // wait for a second
+  delay(250);              // wait for a second
   digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
-  delay(500);  
+  delay(250);  
   digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(500);              // wait for a second
+  delay(250);              // wait for a second
   digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
-  delay(500); 
+  delay(250); 
 //  TTLout(2);
+  TrialCount=TrialCount+1;
+  if (TrialCount==1){
+  Serial.println("Start");
+  Serial.println("trial result, succes count, time ");
+  }
+  sendToPC(2,TrialCount);
+  getDataFromPC();
   }
 }
 //=============
@@ -107,11 +116,11 @@ void parseData() {
 
   strtokIndx = strtok(inputBuffer,","); // get the first part
   SessionStatus[0] = atoi(strtokIndx); //  convert to an integer
-  Serial.println(strtokIndx);
+//  Serial.println(strtokIndx);
   
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
   SessionStatus[1] = atoi(strtokIndx);
-  Serial.println(strtokIndx);
+//  Serial.println(strtokIndx);
   
   strtokIndx = strtok(NULL, ","); 
   if (strtokIndx=="True"){
@@ -119,26 +128,29 @@ void parseData() {
   } else if (strtokIndx=="False"){
     TrialType = 2;
  }
-   Serial.println(strtokIndx);
-
+ 
+ if (SessionStatus[0] == 1){
+ Serial.println("Start running");
+ }
+ 
 }
 
 //=============
 
-void replyToPC() {
+void sendToPC(int trial_result, int success_trial_count) {
+	// if (curMillis - prevReplyToPCmillis >= replyToPCinterval) {
+	// 	prevReplyToPCmillis += replyToPCinterval;
+	// 	int valForPC = curMillis >> 9; // approx half seconds
+	// 	Serial.print('<');
+	// 	Serial.print(valForPC);
+	// 	Serial.print('>');
+	// }
 
-  if (newDataFromPC) {
-    newDataFromPC = false;
-    Serial.print("<Session running? ");
-    Serial.print(SessionStatus[0]);
-    Serial.print(" Reset?  ");
-    Serial.print(SessionStatus[1]);
-    Serial.print(" Trial type? ");
-    Serial.print(TrialType);
-    Serial.print(" Time ");
-    Serial.print(curMillis >> 9); // divide by 512 is approx = half-seconds
-    Serial.println(">");
-  }
+  Serial.print(trial_result);
+  Serial.print(",");
+  Serial.print(success_trial_count);
+  Serial.println(",");
+
 }
 
 //=============
