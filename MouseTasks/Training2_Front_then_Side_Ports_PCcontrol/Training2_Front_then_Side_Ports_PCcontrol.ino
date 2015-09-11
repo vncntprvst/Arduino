@@ -137,16 +137,16 @@ void loop() {
   LeftSolenoid->run(RELEASE);    // make sure to close solenoids
   RightSolenoid->run(RELEASE);
   digitalWrite(SwitchLed,LOW);   // and switch off switch LED
-    
+   
   FrontIRval = analogRead(FrontIRread); // read the input pin
-  //  Serial.print("Front IR ");
-  //  Serial.println(FrontIRval);
-
+//  Serial.print("Front IR ");
+//  Serial.println(FrontIRval);
+  
   if (SessionStatus[0] == 1){ 
 
-    if ((FrontIRval > (Fbaseline + 300))){
+        if ((FrontIRval > (Fbaseline + 300))){
         Frewtrig=Frewtrig+1;
-    }    
+    }
 
     if (Frewtrig>5){
       FPtime=millis();
@@ -159,26 +159,28 @@ void loop() {
         //  Serial.print(" Right IR ");
         //  Serial.println(RightIRval);
       
-        if (FPtime+500<millis() && TrialInit==0){
-//          Serial.println("Front panel explored");
+      
+         if (FPtime+500<millis() && TrialInit==0){
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
-            Serial.println("Start");
-            Serial.println("Trial number, Trial type, Succes count, Time "); // file header
+            Serial.println("Start"); // this will be skiped by serial read
+//            Serial.println("Trial number, Trial type, Succes count, Time "); // file header
           }
           sendToPC(TrialCount,0,RewCount);
           TrialInit=1;
           FPtime = millis();
           SoundOut(2); // for reward US
-        }
+          delay(100);
+         }
+         
       
-      if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
+      if ((LeftIRval > (Lbaseline + 200)) && LeftGLight==1){
         Lrewtrig=Lrewtrig+1;
-      }else if ((RightIRval > (Rbaseline + 300)) && RightGlight==1){
+      }else if ((RightIRval > (Rbaseline + 200)) && RightGlight==1){
         Rrewtrig=Rrewtrig+1;
       }
-      
+          
         if (Lrewtrig>5){
       RewCount=RewCount+1;
       TTLout(2);
@@ -220,7 +222,7 @@ void loop() {
       delay(1000);
       }
       
-      }
+    }
       if (FPtime+10000<millis()){
       // reset
         sendToPC(TrialCount,0,RewCount);
@@ -228,15 +230,7 @@ void loop() {
         resetfp=1;
         TrialInit=0;
       }
-     }
-
-
-    //~ replyToPC();
-    
-    // In initial version, Arduino sends a number 
-    // (roughly the number of half-seconds since RESET) 
-    // to the PC every 3.5 seconds and the Python program 
-    // checks for and displays any new data every 2 seconds
+    }
    }
 }
 
@@ -297,21 +291,22 @@ void parseData() {
 
 //=============
 
-//void replyToPC() {
-//
-//  if (newDataFromPC) {
-//    newDataFromPC = false;
-//    Serial.print("<Session running? ");
-//    Serial.print(SessionStatus[0]);
-//    Serial.print(" Reset?  ");
-//    Serial.print(SessionStatus[1]);
-//    Serial.print(" Trial type? ");
-//    Serial.print(TrialType);
-//    Serial.print(" Time ");
-//    Serial.print(curMillis >> 9); // divide by 512 is approx = half-seconds
-//    Serial.println(">");
-//  }
-//}
+void sendToPC(int TrialCount, int trial_result, int success_trial_count) {
+	// if (curMillis - prevReplyToPCmillis >= replyToPCinterval) {
+	// 	prevReplyToPCmillis += replyToPCinterval;
+	// 	int valForPC = curMillis >> 9; // approx half seconds
+	// 	Serial.print('<');
+	// 	Serial.print(valForPC);
+	// 	Serial.print('>');
+	// }
+
+  Serial.print(TrialCount);
+  Serial.print(",");
+  Serial.print(trial_result);
+  Serial.print(",");
+  Serial.print(success_trial_count);
+  Serial.println(",");
+}
 
 //=============
 
@@ -356,43 +351,6 @@ void panelrotate(){
     }
 //    TexturePanelStepper->release();
     curr_pos = next_pos;
-}
-
-//=============
-
-//void moveServo() {
-//  if (servoPos != newServoPos) {
-//    servoPos = newServoPos;
-//    myServo.write(servoPos);
-//  }
-//}
-
-//=============
-
-void moveStepper() {
-  if (TrialType != 0) {
-    // servoPos = newServoPos;
-    TexturePanelStepper->step(100, BACKWARD, DOUBLE);
-  }
-}
-
-//=============
-
-void sendToPC(int TrialCount, int trial_result, int success_trial_count) {
-	// if (curMillis - prevReplyToPCmillis >= replyToPCinterval) {
-	// 	prevReplyToPCmillis += replyToPCinterval;
-	// 	int valForPC = curMillis >> 9; // approx half seconds
-	// 	Serial.print('<');
-	// 	Serial.print(valForPC);
-	// 	Serial.print('>');
-	// }
-
-  Serial.print(TrialCount);
-  Serial.print(",");
-  Serial.print(trial_result);
-  Serial.print(",");
-  Serial.print(success_trial_count);
-  Serial.println(",");
 }
 
 //=============
@@ -452,12 +410,16 @@ switch (instruct) {
 void reward(Adafruit_DCMotor* solenoid){
   solenoid->setSpeed(255); 
   solenoid->run(FORWARD);
-    for (int dec=255; dec>225; dec-=10) { //that will be ~2.5ul with gravity feed ~20cm above
+// folowing code is not needed anymore and seems to be adding to volume variability
+    for (int dec=225; dec<255; dec+=10){  //that will be ~2.5ul with gravity feed ~20cm above
     solenoid->setSpeed(dec);
-    delay(15);
+    delay(15);}
+    for (int dec=255; dec>225; dec-=10){  //that will be ~2.5ul with gravity feed ~20cm above
+    solenoid->setSpeed(dec);
+    delay(15);}
 //    Serial.println(dec);
-   }
- solenoid->run(RELEASE); // cut power to motor
+//   delay(100);
+   solenoid->run(RELEASE); // cut power to motor
 }
 
 //=============
