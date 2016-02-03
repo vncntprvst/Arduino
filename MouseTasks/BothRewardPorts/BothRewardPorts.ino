@@ -74,10 +74,10 @@ void loop() {
   
   LeftIRval = analogRead(LeftIRread);    // read the input pin
   RightIRval = analogRead(RightIRread); 
-//  Serial.print("Left ");
-//  Serial.print(LeftIRval);  
-//  Serial.print(" Right ");
-//  Serial.println(RightIRval);  
+  Serial.print("Left ");
+  Serial.print(LeftIRval);  
+  Serial.print(" Right ");
+  Serial.println(RightIRval);  
 //  
   if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
     Lrewtrig=Lrewtrig+1;

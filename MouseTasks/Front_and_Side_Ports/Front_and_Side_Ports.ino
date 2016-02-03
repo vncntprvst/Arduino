@@ -89,14 +89,14 @@ void loop() {
   digitalWrite(SwitchLed,LOW);   // and switch off switch LED
   
   LeftIRval = analogRead(LeftIRread);    // read the input pin
-//  Serial.print(" Left IR ");
-//  Serial.print(LeftIRval);
+  Serial.print(" Left IR ");
+  Serial.print(LeftIRval);
   RightIRval = analogRead(RightIRread); 
-//  Serial.print(" Right IR ");
-//  Serial.print(RightIRval);
+  Serial.print(" Right IR ");
+  Serial.print(RightIRval);
   FrontIRval = analogRead(FrontIRread);
-//  Serial.print("Front IR ");
-//  Serial.println(FrontIRval);
+  Serial.print("Front IR ");
+  Serial.println(FrontIRval);
   
   if ((LeftIRval > (Lbaseline + 300)) && LeftGLight==1){
     Lrewtrig=Lrewtrig+1;

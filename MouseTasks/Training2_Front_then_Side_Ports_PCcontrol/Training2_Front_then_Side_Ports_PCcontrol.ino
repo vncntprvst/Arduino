@@ -164,7 +164,7 @@ void loop() {
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
-            Serial.println("Start"); // this will be skiped by serial read
+//            Serial.println("Start"); // this will be skiped by serial read
 //            Serial.println("Trial number, Trial type, Succes count, Time "); // file header
           }
           sendToPC(TrialCount,0,RewCount);

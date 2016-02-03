@@ -160,7 +160,7 @@ void loop() {
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
-            Serial.println("Start"); // this will be skiped by serial read
+//            Serial.println("Start"); // this will be skiped by serial read
 //            Serial.println("Trial number, Trial type, Succes count, Time "); // file header
           }
           sendToPC(TrialCount,0,RewCount);
@@ -419,8 +419,8 @@ void arrayinit(){
   float LeftIRvalArray[4];
   float RightIRvalArray[4];
   float FrontIRvalArray[4];
-  Serial.println(" ");
-  Serial.println("Start IR initialization");
+//  Serial.println(" ");
+//  Serial.println("Start IR initialization");
   while (Ltotal!=3 && Rtotal!=3 && Ftotal!=3){
   Ltotal=0;
   Rtotal=0;
@@ -439,32 +439,32 @@ void arrayinit(){
       Ftotal++;
     }  
   delay(10);  
-  Serial.print("Left IR val ");
-  Serial.print((long)LeftIRvalArray[inc], DEC); 
-  Serial.print(" & Right IR val "); 
-  Serial.println((long)RightIRvalArray[inc], DEC);
-  Serial.print(" & Front IR val "); 
-  Serial.println((long)FrontIRvalArray[inc], DEC);
+//  Serial.print("Left IR val ");
+//  Serial.print((long)LeftIRvalArray[inc], DEC); 
+//  Serial.print(" & Right IR val "); 
+//  Serial.println((long)RightIRvalArray[inc], DEC);
+//  Serial.print(" & Front IR val "); 
+//  Serial.println((long)FrontIRvalArray[inc], DEC);
   }
   }
   Lbaseline=LeftIRvalArray[3];
   Rbaseline=RightIRvalArray[3];
   Fbaseline=FrontIRvalArray[3];
-  Serial.print("Left Baseline value is ");
-  Serial.print(Lbaseline);
-  Serial.print(" and Right Baseline value is ");
-  Serial.println(Rbaseline);
-  Serial.print(" and Front Baseline value is ");
-  Serial.println(Fbaseline);
-  Serial.println("End initialization");
-  // tell the PC we are ready
-  Serial.println("<Arduino is ready>");
+//  Serial.print("Left Baseline value is ");
+//  Serial.print(Lbaseline);
+//  Serial.print(" and Right Baseline value is ");
+//  Serial.println(Rbaseline);
+//  Serial.print(" and Front Baseline value is ");
+//  Serial.println(Fbaseline);
+//  Serial.println("End initialization");
+//  // tell the PC we are ready
+//  Serial.println("<Arduino is ready>");
 }
 
 //=============
 
 void rewardflush(){
-  Serial.println("flush");
+//  Serial.println("flush");
   // flush left
   LeftSolenoid->run(FORWARD);
   LeftSolenoid->setSpeed(255);
