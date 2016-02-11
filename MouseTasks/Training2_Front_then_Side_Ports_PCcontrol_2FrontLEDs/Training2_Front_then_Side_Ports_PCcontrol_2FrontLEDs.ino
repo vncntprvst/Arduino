@@ -94,22 +94,22 @@ unsigned long curMillis;
 void setup() {
  Serial.begin(9600);
  randomSeed(analogRead(A4));
-    
+
  pinMode(FlushPress, INPUT_PULLUP);  
  pinMode(SwitchLed, OUTPUT);
  pinMode(TTLPin, OUTPUT);
  pinMode(SoundTriggerPin, OUTPUT);
-  
+
  AFMS.begin();  // initiate motor shield with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
-  
+
 // turn off current in solenoid coil
-  LeftSolenoid->run(RELEASE);
-  RightSolenoid->run(RELEASE);
-    
+ LeftSolenoid->run(RELEASE);
+ RightSolenoid->run(RELEASE);
+
   TexturePanelStepper->setSpeed(30);  // 30 rpm 
 //for(i=0;i<4;i++){ motors[i].run(RELEASE); }
- 
+
 // IR sensor initialization
   arrayinit();   
 }
@@ -140,7 +140,7 @@ void loop() {
   LeftSolenoid->run(RELEASE);    // make sure to close solenoids
   RightSolenoid->run(RELEASE);
   digitalWrite(SwitchLed,LOW);   // and switch off switch LED
-   
+
   FrontIR1val = analogRead(FrontIR1read); // read the input pin
   FrontIR2val = analogRead(FrontIR2read); // read the input pin
 //  Serial.print("Front IR ");
@@ -148,23 +148,23 @@ void loop() {
   
   if (SessionStatus[0] == 1){ 
 
-        if ((FrontIR1val > (F1baseline + 300)) || (FrontIR2val > (F2baseline + 300))){
-        Frewtrig=Frewtrig+1;
+    if ((FrontIR1val > (F1baseline + 300)) || (FrontIR2val > (F2baseline + 300))){
+      Frewtrig=Frewtrig+1;
     }
 
     if (Frewtrig>5){
       FPtime=millis();
       resetfp=0;
-      while (FPtime+10000>millis() && resetfp==0){ // if waits too long, reset
+      while ((FPtime+10000)>millis() && resetfp==0){ // if waits too long, reset
         LeftIRval = analogRead(LeftIRread);    
         //  Serial.print(" Left IR ");
         //  Serial.print(LeftIRval);
         RightIRval = analogRead(RightIRread); 
         //  Serial.print(" Right IR ");
         //  Serial.println(RightIRval);
-      
-      
-         if (FPtime+500<millis() && TrialInit==0){
+
+
+        if ((FPtime+500)<millis() && TrialInit==0){
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
@@ -176,18 +176,18 @@ void loop() {
           FPtime = millis();
           SoundOut(2); // for reward US
           delay(100);
-         }
-         
-      
-      if ((LeftIRval > (Lbaseline + 200)) && LeftGLight==1){
-        Lrewtrig=Lrewtrig+1;
-      }else if ((RightIRval > (Rbaseline + 200)) && RightGlight==1){
-        Rrewtrig=Rrewtrig+1;
-      }
-          
+        }
+
+
+        if ((LeftIRval > (Lbaseline + 200)) && LeftGLight==1){
+          Lrewtrig=Lrewtrig+1;
+        }else if ((RightIRval > (Rbaseline + 200)) && RightGlight==1){
+          Rrewtrig=Rrewtrig+1;
+        }
+
         if (Lrewtrig>5){
-      RewCount=RewCount+1;
-      TTLout(2);
+          RewCount=RewCount+1;
+          TTLout(2);
       sendToPC(TrialCount,1,RewCount); // result current trial
       // open left solenoid
 //      Serial.println("Open Left Solenoid");
@@ -204,9 +204,9 @@ void loop() {
       TrialInit=0;
       // refractory period
       delay(1000);
-      } 
-     
-     if (Rrewtrig>5){
+    } 
+
+    if (Rrewtrig>5){
       RewCount=RewCount+1;
       TTLout(2);
       sendToPC(TrialCount,2,RewCount); // result current trial
@@ -224,18 +224,19 @@ void loop() {
       TrialInit=0;
       // refractory period
       delay(1000);
-      }
-      
     }
-      if ((FPtime+10000)<millis()){
+
+  }
+  if ((FPtime+10000)<millis()){
       // reset
-        sendToPC(TrialCount,0,RewCount);
-        Frewtrig=0;
-        resetfp=1;
-        TrialInit=0;
-      }
-    }
-   }
+    TTLout(2);
+    sendToPC(TrialCount,0,RewCount);
+    Frewtrig=0;
+    resetfp=1;
+    TrialInit=0;
+  }
+}
+}
 }
 
 //=============
@@ -245,7 +246,7 @@ void getDataFromPC() {
   if(Serial.available() > 0) {
     char x = Serial.read();
       // the order of these IF clauses is significant
-      
+
     if (x == endMarker) {
       readInProgress = false;
       newDataFromPC = true;
@@ -269,12 +270,12 @@ void getDataFromPC() {
 }
 
 //=============
- 
+
 void parseData() {
 
     // split the data into its parts
     // assumes the data will be received as (eg) 1,0,2
-    
+
   char * strtokIndx; // this is used by strtok() as an index
   
   strtokIndx = strtok(inputBuffer,","); // get the first part
@@ -331,30 +332,30 @@ void panelrotate(){
 //      delay(100);
 //      Serial.println("Rotate CCW 3/4");
       TexturePanelStepper->step(150, BACKWARD, DOUBLE);
-      } else {
+    } else {
 //      Serial.println("Rotate CCW 1/2");
 //      TexturePanelStepper->step(100, BACKWARD, MICROSTEP);
 //      delay(100);
 //      Serial.println("Rotate CW 3/4");
       TexturePanelStepper->step(150, FORWARD, DOUBLE);
-      }
-    } else {
-      if (rot_seq < 100 ) {
+    }
+  } else {
+    if (rot_seq < 100 ) {
 //      Serial.println("Rotate CW 1/2");
 //      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
 //      delay(100);
 //      Serial.println("Rotate CCW 1/2");
       TexturePanelStepper->step(100, BACKWARD, DOUBLE);
-      } else {
+    } else {
 //      Serial.println("Rotate CCW 1 and 1/2");
 //      TexturePanelStepper->step(300, BACKWARD, MICROSTEP);
 //      delay(100);
 //      Serial.println("Rotate CW 1/2");
       TexturePanelStepper->step(100, FORWARD, DOUBLE);
-      }
     }
+  }
 //    TexturePanelStepper->release();
-    curr_pos = next_pos;
+  curr_pos = next_pos;
 }
 
 //=============
@@ -363,15 +364,15 @@ void TTLout(int instruct){
   digitalWrite(TTLPin, HIGH);
   delay(10);
   digitalWrite(TTLPin, LOW);
-switch (instruct) {
-  case 1: 
+  switch (instruct) {
+    case 1: 
     // trial initiation: 2 TTL
     delay(10);
     digitalWrite(TTLPin, HIGH);
     delay(10);
     digitalWrite(TTLPin, LOW);
     break;
-  case 2:
+    case 2:
   // that's it
     break;
   }
@@ -382,7 +383,7 @@ switch (instruct) {
 void SoundOut(int instruct){
 //HIGH triggers trinkets listening
 //Serial.println("TTL out");
-switch (instruct) {
+  switch (instruct) {
     // both cases should total 10ms
     case 1: 
     // white noise
@@ -395,7 +396,7 @@ switch (instruct) {
       digitalWrite(SoundTriggerPin, LOW); // White noise
       delay(8);
       break;
-    case 2:
+      case 2:
       // US
       digitalWrite(SoundTriggerPin, HIGH); // trigger
       delay(2); 
@@ -406,29 +407,29 @@ switch (instruct) {
       digitalWrite(SoundTriggerPin, LOW);
       delay(4);
       break;
+    }
   }
-}
 
 //=============
 
-void reward(Adafruit_DCMotor* solenoid){
-  solenoid->setSpeed(255); 
-  solenoid->run(FORWARD);
+  void reward(Adafruit_DCMotor* solenoid){
+    solenoid->setSpeed(255); 
+    solenoid->run(FORWARD);
 // folowing code is not needed anymore and seems to be adding to volume variability
     for (int dec=225; dec<255; dec+=10){  //that will be ~2.5ul with gravity feed ~20cm above
-    solenoid->setSpeed(dec);
-    delay(15);}
+      solenoid->setSpeed(dec);
+      delay(15);}
     for (int dec=255; dec>225; dec-=10){  //that will be ~2.5ul with gravity feed ~20cm above
-    solenoid->setSpeed(dec);
-    delay(15);}
+      solenoid->setSpeed(dec);
+      delay(15);}
 //    Serial.println(dec);
 //   delay(100);
    solenoid->run(RELEASE); // cut power to motor
-}
+ }
 
 //=============
 
-void arrayinit(){
+ void arrayinit(){
   int  inc;
   int Ltotal;
   int Rtotal;
@@ -441,37 +442,37 @@ void arrayinit(){
   Serial.println(" ");
   Serial.println("Start IR initialization");
   while (Ltotal!=3 && Rtotal!=3 && F1total!=3 && F2total!=3){
-  Ltotal=0;
-  Rtotal=0;
-  F1total=0;
-  F2total=0;
-  for (inc=0; inc < 4 ; inc++ ){
-    LeftIRvalArray[inc] = analogRead(LeftIRread);
-    RightIRvalArray[inc] = analogRead(RightIRread);
-    FrontIR1valArray[inc] = analogRead(FrontIR1read);
-    FrontIR2valArray[inc] = analogRead(FrontIR2read);
-    if ((inc>0) && LeftIRvalArray[inc]==LeftIRvalArray[inc-1]){
-      Ltotal++;
-    }   
-    if ((inc>0) && RightIRvalArray[inc]==RightIRvalArray[inc-1]){
-      Rtotal++;
-    }   
-    if ((inc>0) && FrontIR1valArray[inc]==FrontIR1valArray[inc-1]){
-      F1total++;
-    }  
-        if ((inc>0) && FrontIR2valArray[inc]==FrontIR2valArray[inc-1]){
-      F2total++;
-    }  
-  delay(10);  
-  Serial.print("Left IR val ");
-  Serial.print((long)LeftIRvalArray[inc], DEC); 
-  Serial.print(" & Right IR val "); 
-  Serial.println((long)RightIRvalArray[inc], DEC);
-  Serial.print(" & Front IR 1 val "); 
-  Serial.print((long)FrontIR1valArray[inc], DEC);
-  Serial.print(" & Front IR 2 val "); 
-  Serial.println((long)FrontIR2valArray[inc], DEC);
-  }
+    Ltotal=0;
+    Rtotal=0;
+    F1total=0;
+    F2total=0;
+    for (inc=0; inc < 4 ; inc++ ){
+      LeftIRvalArray[inc] = analogRead(LeftIRread);
+      RightIRvalArray[inc] = analogRead(RightIRread);
+      FrontIR1valArray[inc] = analogRead(FrontIR1read);
+      FrontIR2valArray[inc] = analogRead(FrontIR2read);
+      if ((inc>0) && LeftIRvalArray[inc]==LeftIRvalArray[inc-1]){
+        Ltotal++;
+      }   
+      if ((inc>0) && RightIRvalArray[inc]==RightIRvalArray[inc-1]){
+        Rtotal++;
+      }   
+      if ((inc>0) && FrontIR1valArray[inc]==FrontIR1valArray[inc-1]){
+        F1total++;
+      }  
+      if ((inc>0) && FrontIR2valArray[inc]==FrontIR2valArray[inc-1]){
+        F2total++;
+      }  
+      delay(10);  
+      Serial.print("Left IR val ");
+      Serial.print((long)LeftIRvalArray[inc], DEC); 
+      Serial.print(" & Right IR val "); 
+      Serial.println((long)RightIRvalArray[inc], DEC);
+      Serial.print(" & Front IR 1 val "); 
+      Serial.print((long)FrontIR1valArray[inc], DEC);
+      Serial.print(" & Front IR 2 val "); 
+      Serial.println((long)FrontIR2valArray[inc], DEC);
+    }
   }
   Lbaseline=LeftIRvalArray[3];
   Rbaseline=RightIRvalArray[3];
@@ -497,7 +498,7 @@ void rewardflush(){
   // flush left
   LeftSolenoid->run(FORWARD);
   LeftSolenoid->setSpeed(255);
- delay(1500);
+  delay(1500);
   LeftSolenoid->run(RELEASE);
   // flush right
   RightSolenoid->run(FORWARD);
