@@ -2,7 +2,6 @@
 Whisker platform task
 ---------------------
 Mouse go to front panel, then to either reward port
-Left / Right reward calibrated on 2/25/2016
 */
 
 // intended for use with Bonsai workflow  (default: RunTask.bonsai)
@@ -120,7 +119,8 @@ void setup() {
 void loop() {
 
   // curMillis = millis();
-  getDataFromPC();
+  // getDataFromPC();
+  SessionStatus[0] = 1;
 
   if(SessionStatus[1] == 1){ // reset counters
 //    arrayinit();
@@ -159,13 +159,14 @@ void loop() {
       FPtime=millis();
       resetfp=0;
       while ((FPtime+10000)>millis() && resetfp==0){ // if waits too long, reset
+        Serial.println("in while loop");
 
         if (TrialInit==0){ //(FPtime+500)<millis() && 
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
-            // Serial.println("Start"); // this will be skiped by serial read
-            // Serial.println("Trial number, Trial type, Succes count, Time "); // file header
+           Serial.println("Start"); // this will be skiped by serial read
+//            Serial.println("Trial number, Trial type, Succes count, Time "); // file header
           }
           sendToPC(TrialCount,0,RewCount);
           TrialInit=1;
@@ -192,8 +193,8 @@ void loop() {
           TTLout(2);
           sendToPC(TrialCount,1,RewCount); // result current trial
           // open left solenoid
-    //      Serial.println("Open Left Solenoid");
-          reward(LeftSolenoid,47);
+         Serial.println("Open Left Solenoid");
+          reward(LeftSolenoid);
           SoundOut(1); // white noise mask 
           panelrotate(); // set for next trial
           
@@ -205,7 +206,7 @@ void loop() {
           resetfp=1;
           TrialInit=0;
           // refractory period
-          delay(2000); // timeout to leave time for 2s white noise
+          delay(1000);
         } 
 
         if (Rrewtrig>5){
@@ -213,8 +214,8 @@ void loop() {
           TTLout(2);
           sendToPC(TrialCount,2,RewCount); // result current trial
           // Open right solenoid
-    //      Serial.println("Open Right Solenoid ");
-          reward(RightSolenoid,40);
+         Serial.println("Open Right Solenoid ");
+          reward(RightSolenoid);
           SoundOut(1); // white noise mask 
           panelrotate(); // set for next trial
     //      Serial.print("Reward count: ");
@@ -225,26 +226,16 @@ void loop() {
           resetfp=1;
           TrialInit=0;
           // refractory period
-          delay(2000);  // timeout to leave time for 2s white noise 
+          delay(1000);
         }
+//        Serial.println(FPtime+10000);
       }
 
-      delay(1);
-      if ((FPtime+10000)<millis() && resetfp==0){
-        while ((FrontIR1val > (F1baseline + 300)) || (FrontIR2val > (F2baseline + 300))){
-          // wait for mouse to get out of front panel
-            FrontIR1val = analogRead(FrontIR1read); // read the input pin
-            FrontIR2val = analogRead(FrontIR2read);
-        }
-          // reset (working version)
+      if ((FPtime+10000)<millis()){
+          // reset
+        Serial.println("Timeout");
         TTLout(2);
         sendToPC(TrialCount,90,RewCount);
-
-        SoundOut(1); // white noise mask 
-        panelrotate(); // set for next trial
-
-        Rrewtrig=0;
-        Lrewtrig=0;
         Frewtrig=0;
         resetfp=1;
         TrialInit=0;
@@ -341,31 +332,31 @@ void panelrotate(){
   
   if (curr_pos < 100 && next_pos < 100){ //different texture
     if (rot_seq < 100 ) { 
-//      Serial.println("Rotate CW 1/4");
-      TexturePanelStepper->step(50, FORWARD, DOUBLE);
-      delay(100);
-//      Serial.println("Rotate CCW 1/4");
-     TexturePanelStepper->step(50, BACKWARD, DOUBLE); 
+//      Serial.println("Rotate CW 1/2");
+//      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
+//      delay(100);
+//      Serial.println("Rotate CCW 3/4");
+      TexturePanelStepper->step(150, BACKWARD, DOUBLE);
     } else {
-//      Serial.println("Rotate CCW 1/4");
-      TexturePanelStepper->step(50, BACKWARD, DOUBLE);
-      delay(100);
-//      Serial.println("Rotate CW 1/4");
-      TexturePanelStepper->step(50, FORWARD, DOUBLE); 
+//      Serial.println("Rotate CCW 1/2");
+//      TexturePanelStepper->step(100, BACKWARD, MICROSTEP);
+//      delay(100);
+//      Serial.println("Rotate CW 3/4");
+      TexturePanelStepper->step(150, FORWARD, DOUBLE);
     }
   } else {
     if (rot_seq < 100 ) {
-//      Serial.println("Rotate CCW 1/4");
-      TexturePanelStepper->step(50, BACKWARD, DOUBLE); 
-      delay(100);
-//      Serial.println("Rotate CCW 1/4");
-      TexturePanelStepper->step(50, BACKWARD, DOUBLE); 
+//      Serial.println("Rotate CW 1/2");
+//      TexturePanelStepper->step(100, FORWARD, MICROSTEP);
+//      delay(100);
+//      Serial.println("Rotate CCW 1/2");
+      TexturePanelStepper->step(100, BACKWARD, DOUBLE);
     } else {
-//      Serial.println("Rotate CW 1/4");
-      TexturePanelStepper->step(50, FORWARD, DOUBLE);
-      delay(100);
-//      Serial.println("Rotate CW 1/4");
-      TexturePanelStepper->step(50, FORWARD, DOUBLE);
+//      Serial.println("Rotate CCW 1 and 1/2");
+//      TexturePanelStepper->step(300, BACKWARD, MICROSTEP);
+//      delay(100);
+//      Serial.println("Rotate CW 1/2");
+      TexturePanelStepper->step(100, FORWARD, DOUBLE);
     }
   }
 //    TexturePanelStepper->release();
@@ -410,7 +401,7 @@ void SoundOut(int instruct){
       digitalWrite(SoundTriggerPin, LOW); // White noise
       delay(8);
       break;
-    case 2:
+      case 2:
       // US
       digitalWrite(SoundTriggerPin, HIGH); // trigger
       delay(2); 
@@ -420,26 +411,29 @@ void SoundOut(int instruct){
       delay(2);
       digitalWrite(SoundTriggerPin, LOW);
       delay(4);
-    break;
+      break;
     }
   }
 
 //=============
 
-void reward(Adafruit_DCMotor* solenoid,int dur){
-  solenoid->setSpeed(255);  
-  solenoid->run(FORWARD);
-//    for (int dec=200; dec>170; dec-=decrease) { //max 255
-//    solenoid->setSpeed(dec);
-//    delay(15);
+  void reward(Adafruit_DCMotor* solenoid){
+    solenoid->setSpeed(255); 
+    solenoid->run(FORWARD);
+// folowing code is not needed anymore and seems to be adding to volume variability
+    for (int dec=225; dec<255; dec+=10){  //that will be ~2.5ul with gravity feed ~20cm above
+      solenoid->setSpeed(dec);
+      delay(15);}
+    for (int dec=255; dec>225; dec-=10){  //that will be ~2.5ul with gravity feed ~20cm above
+      solenoid->setSpeed(dec);
+      delay(15);}
 //    Serial.println(dec);
-//   }
- delay(dur);
- solenoid->run(RELEASE); // cut power to motor
-}
+//   delay(100);
+   solenoid->run(RELEASE); // cut power to motor
+ }
 
 //=============
-// see also runningMedian Class for Arduino: http://playground.arduino.cc/Main/RunningMedian
+
  void arrayinit(){
   int  inc;
   int Ltotal;

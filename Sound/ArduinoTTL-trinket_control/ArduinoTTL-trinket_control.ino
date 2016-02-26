@@ -28,7 +28,7 @@ const int SwitchLed = 3;     // pushbutton led pin
 const int flushcycletime = 20; // solenoid turn off staircase period
 
 //const int TTLPin = 12;
-const int SoundTriggerPin=11;
+const int SoundTriggerPin=8;
 
 int curr_pos=0; // panel position, 0 or 1
 int next_pos=50;
@@ -52,27 +52,26 @@ void setup() {
 
 void loop() {
       
-      TTLout(2); // for reward US
+      SoundOut(2); // for reward US
       delay(110); // delay needs to be higher than bleep duration
-      TTLout(1); // start WN
-      panelrotate(); // set for next trial 
+      SoundOut(1); // start WN
+//      panelrotate(); // set for next trial 
 //      TTLout(1); // end WN
       delay(1000);
 }
 
 //=============
-
-void TTLout(int instruct){
+void SoundOut(int instruct){
 //HIGH triggers trinkets listening
-Serial.println("TTL out");
-switch (instruct) {
+//Serial.println("TTL out");
+  switch (instruct) {
     // both cases should total 10ms
     case 1: 
     // white noise
       digitalWrite(SoundTriggerPin, HIGH); // trigger
 // NB: 
 // if control PlayTone enabled in WhiteNoise_USbeep
-// need to add a total of 100ms (or control beep's duration)
+// need to add a total of 10ms (or control beep's duration)
 // to wait for if statment 
       delay(2); 
       digitalWrite(SoundTriggerPin, LOW); // White noise
@@ -88,9 +87,9 @@ switch (instruct) {
       delay(2);
       digitalWrite(SoundTriggerPin, LOW);
       delay(4);
-      break;
+    break;
+    }
   }
-}
 
 //=============
 

@@ -1,5 +1,6 @@
 /* 
 Testing reward volume
+Left / Right last calibrated on 2/25/16
 */
 
 #include <Wire.h>
@@ -32,11 +33,11 @@ void setup() {
 
 void loop() {
   
-    while (RewCount <= 500){
-  // 500 trials give about ~1ml (.5 each side), so ~2ul per trial (see picture)
+    while (RewCount < 200){
+  // 200 trials give about ~200ul (1ul each side)
   // Left solenoid
   Serial.println("Open Left Solenoid");
-  reward(LeftSolenoid);
+  reward(LeftSolenoid,47);
   RewCount=RewCount+1;
   Serial.print("Reward count: ");
   Serial.println(RewCount);
@@ -46,7 +47,7 @@ void loop() {
 
   // Right solenoid
   Serial.println("Open Right Solenoid ");
-  reward(RightSolenoid);
+  reward(RightSolenoid,40);
   RewCount=RewCount+1;
   Serial.print("Reward count: ");
   Serial.println(RewCount);
@@ -56,15 +57,14 @@ void loop() {
     }
 }
 
-void reward(Adafruit_DCMotor* solenoid){
-  solenoid->setSpeed(255);  // 185 (max) corresponds to 6V ouput with external power supply 
-                              // ~5.5V when solenoid plugged in                              
-                           // 3.24V output with USB 
+void reward(Adafruit_DCMotor* solenoid,int dur){
+  solenoid->setSpeed(255);  
   solenoid->run(FORWARD);
-    for (int dec=255; dec>225; dec-=10) {
-    solenoid->setSpeed(dec);
-    delay(15);
-    Serial.println(dec);
-   }
+//    for (int dec=200; dec>170; dec-=decrease) { //max 255
+//    solenoid->setSpeed(dec);
+//    delay(15);
+//    Serial.println(dec);
+//   }
+ delay(dur);
  solenoid->run(RELEASE); // cut power to motor
 }

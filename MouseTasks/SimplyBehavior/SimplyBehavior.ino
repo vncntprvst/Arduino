@@ -4,7 +4,7 @@ No task - just behavior
 
 // intended for use with Bonsai workflow  (default: RunBehavior_Video.bonsai)
 // includes a function to send data to the PC
-const int TTLPin = 8;
+const int TTLPin = 12;
 
 byte SessionStatus[2] = {0, 0}; // 1/ Run [ON/OFF (1/0)] 2/ Reset (1)
 byte TrialType = 0; // 0, no trial going on; 1 left trial; 2, right trial // left or right doesn't matter here
