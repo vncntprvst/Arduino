@@ -51,7 +51,7 @@ void generateNoise(int frequency) {
   reg = newr;
   
   // Drive speaker pin from bit 0 of 'reg'
-  digitalWrite(LspeakerPin, reg & 1);
+  digitalWrite(RspeakerPin, reg & 1);
   
   // Delay (50) corresponds to 20kHz, but the actual frequency of updates
   // will be lower, due to computation time and loop overhead
