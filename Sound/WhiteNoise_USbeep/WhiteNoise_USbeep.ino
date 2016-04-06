@@ -75,7 +75,7 @@ void loop() {
   //     SetGain();
 //       while (stop_noise==0);
       }
-//      delay(200); // just waiting for TTL to come down
+//      delay(200); // just waiting for TTL to come down 
       standby =1;
     }
     else if (sound_type > 1){

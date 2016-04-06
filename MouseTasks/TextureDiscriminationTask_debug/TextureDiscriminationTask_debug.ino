@@ -1,11 +1,12 @@
 /* 
 Texture discrimination task
 ---------------------
-Mouse go to front panel, then to left or right reward port
-Left / Right reward calibrated on 2/25/2016
+Mouse go to front panel, touch textur panel with whiskers, then  go to left or right reward port accordingly.
+Rule is: Texture -> go Left; No Texture -> go Right;
+Based on Training2_Front_then_Side_Ports_PCcontrol_2FrontLEDs
 */
 
-// intended for use with Bonsai workflow  (default: RunTask.bonsai)
+// intended for use with Bonsai workflow  (default: RunTask_Video_PerfHisto_HSCam_TimestampedVids.bonsai)
 // includes a function to send data to the PC
 
 #include <Wire.h>
@@ -55,16 +56,17 @@ int LeftIRval = Lbaseline;           // store read value
 int RightIRval = Rbaseline; 
 int FrontIR1val = F1baseline;
 int FrontIR2val = F2baseline;
-int LeftGLight = 1; // Good to go ("green light")
-int RightGlight = 1;
+int LeftGLight = 0; // Good to go ("green light")
+int RightGlight = 0;
 //int PushState = 0;          // pushbutton status
 int TrialCount=0;
 int RewCount=0;
 int Lrewtrig=0;
 int Rrewtrig=0;
 int Frewtrig=0;
+int inPort=0; // keep track of attempts to explore a port 
 
-int curr_pos=0; // panel position, 0 or 1
+int curr_pos=0; // inital panel position, curr_pos < 100 means texture side -> go Left (trial type 1)
 int next_pos;
 int rot_seq; // number of panel rotations
 
@@ -130,13 +132,13 @@ void loop() {
     Rrewtrig=0;
     Frewtrig=0;
   }
-
-  while (SessionStatus[0] == 0){ 
-    getDataFromPC();
-    while (digitalRead(FlushPress) == LOW){
-      rewardflush();
-    }
-  }
+SessionStatus[0]=1;
+//  while (SessionStatus[0] == 0){ 
+//    getDataFromPC();
+//    while (digitalRead(FlushPress) == LOW){
+//      rewardflush();
+//    }
+//  }
 
   LeftSolenoid->run(RELEASE);    // make sure to close solenoids
   RightSolenoid->run(RELEASE);
@@ -150,6 +152,11 @@ void loop() {
 //  Serial.println(FrontIR2val);
   
   if (SessionStatus[0] == 1){ 
+    if (curr_pos==0){ //initialize random starting panel position
+    Serial.println("initialize random starting panel position");
+        panelrotate();
+    Serial.println(TrialType);
+    }
 
     if ((FrontIR1val > (F1baseline + 300)) || (FrontIR2val > (F2baseline + 300))){
       Frewtrig=Frewtrig+1;
@@ -164,10 +171,17 @@ void loop() {
           TrialCount=TrialCount+1;
           TTLout(1);
           if (TrialCount==1){
-            // Serial.println("Start"); // this will be skiped by serial read
+            Serial.println("Start"); // this will be skiped by serial read
             // Serial.println("Trial number, Trial type, Succes count, Time "); // file header
           }
-          sendToPC(TrialCount,0,RewCount);
+          sendToPC(TrialCount,int(TrialType),RewCount);
+          if (TrialType==1){
+            LeftGLight=1;
+            Serial.println("TrialType==1");
+          } else if (TrialType==2){
+            RightGlight=1;
+            Serial.println("TrialType==2");
+          }
           TrialInit=1;
           // FPtime = millis();
           SoundOut(2); // for reward US
@@ -175,24 +189,24 @@ void loop() {
         }
 
         LeftIRval = analogRead(LeftIRread);    
-        //  Serial.print(" Left IR ");
-        //  Serial.print(LeftIRval);
+//        Serial.print(" Left IR ");
+//        Serial.print(LeftIRval);
         RightIRval = analogRead(RightIRread); 
-        //  Serial.print(" Right IR ");
-        //  Serial.println(RightIRval);
+//        Serial.print(" Right IR ");
+//        Serial.println(RightIRval);
 
-        if ((LeftIRval > (Lbaseline + 200)) && LeftGLight==1){
+        if (LeftIRval > (Lbaseline + 200)){
           Lrewtrig=Lrewtrig+1;
-        }else if ((RightIRval > (Rbaseline + 200)) && RightGlight==1){
+        }else if (RightIRval > (Rbaseline + 200)){
           Rrewtrig=Rrewtrig+1;
         }
 
-        if (Lrewtrig>5){
+        if (Lrewtrig>5 && LeftGLight==1){
           RewCount=RewCount+1;
           TTLout(2);
           sendToPC(TrialCount,1,RewCount); // result current trial
           // open left solenoid
-    //      Serial.println("Open Left Solenoid");
+          Serial.println("Open Left Solenoid");
           reward(LeftSolenoid,47);
           SoundOut(1); // white noise mask 
           panelrotate(); // set for next trial
@@ -202,18 +216,30 @@ void loop() {
           Lrewtrig=0;
           Rrewtrig=0;
           Frewtrig=0;
+          LeftGLight=0;
+          RightGlight=0;
           resetfp=1;
           TrialInit=0;
           // refractory period
           delay(2000); // timeout to leave time for 2s white noise
-        } 
+        } else if (Lrewtrig>5 && RightGlight==1){
+          if (inPort==0){
+            sendToPC(TrialCount,81,0);
+            Serial.println("Left Port: incorrect ");
+          }
+          inPort=1;
+          if ((LeftIRval < (Lbaseline + 200))) {
+            inPort=0;
+            Lrewtrig=0;
+          }
+        }
 
-        if (Rrewtrig>5){
+        if (Rrewtrig>5 && RightGlight==1){
           RewCount=RewCount+1;
           TTLout(2);
           sendToPC(TrialCount,2,RewCount); // result current trial
           // Open right solenoid
-    //      Serial.println("Open Right Solenoid ");
+            Serial.println("Open Right Solenoid ");
           reward(RightSolenoid,40);
           SoundOut(1); // white noise mask 
           panelrotate(); // set for next trial
@@ -222,10 +248,22 @@ void loop() {
           Rrewtrig=0;
           Lrewtrig=0;
           Frewtrig=0;
+          LeftGLight=0;
+          RightGlight=0;
           resetfp=1;
           TrialInit=0;
           // refractory period
           delay(2000);  // timeout to leave time for 2s white noise 
+        } else if (Rrewtrig>5 && LeftGLight==1){
+          if (inPort==0){
+            sendToPC(TrialCount,82,0);
+            Serial.println("Right Port: incorrect ");
+          }
+          inPort=1;
+          if ((RightIRval < (Rbaseline + 200))) {
+            inPort=0;
+            Rrewtrig=0;
+          }
         }
       }
 
@@ -238,13 +276,14 @@ void loop() {
         }
           // reset (working version)
         TTLout(2);
-        sendToPC(TrialCount,90,RewCount);
+        sendToPC(TrialCount,int(90+TrialType),0);
 
         SoundOut(1); // white noise mask 
         panelrotate(); // set for next trial
 
         Rrewtrig=0;
         Lrewtrig=0;
+        inPort=0;
         Frewtrig=0;
         resetfp=1;
         TrialInit=0;
@@ -304,8 +343,7 @@ void parseData() {
 //  } else if (strtokIndx=="False"){
 //    TrialType = 2;
 // }
-  TrialType = atoi(strtokIndx)+1;
-
+  TrialType = atoi(strtokIndx)+1; // unused for the moment
 }
 
 //=============
@@ -332,14 +370,23 @@ void sendToPC(int TrialCount, int trial_result, int success_trial_count) {
 void panelrotate(){
   // Rotate panel for next trial
   // here random rotation; may be replaced by instruction from computer
-  next_pos = random(200); // random number between 0 and 1
+  next_pos = random(1,201); // random number between 0 and 1
+  if (next_pos<101){
+    TrialType=1;
+    Serial.print("panelrotate says TrialType is ");
+    Serial.println(TrialType);
+  } else {
+    TrialType=2;
+    Serial.print("panelrotate says TrialType is ");
+    Serial.println(TrialType);
+  }
 //  Serial.print("panelrotate next pos ");
 //  Serial.println(next_pos);
   rot_seq = random(200); // random number between 0 and 1
 //  Serial.print("panelrotate rot seq ");
 //  Serial.println(rot_seq);
   
-  if (curr_pos < 100 && next_pos < 100){ //different texture
+  if (((curr_pos < 101) && (next_pos < 101)) || ((curr_pos > 100) && (next_pos > 100))){ 
     if (rot_seq < 100 ) { 
 //      Serial.println("Rotate CW 1/4");
       TexturePanelStepper->step(50, FORWARD, DOUBLE);
@@ -353,7 +400,7 @@ void panelrotate(){
 //      Serial.println("Rotate CW 1/4");
       TexturePanelStepper->step(50, FORWARD, DOUBLE); 
     }
-  } else {
+  } else { //present different texture
     if (rot_seq < 100 ) {
 //      Serial.println("Rotate CCW 1/4");
       TexturePanelStepper->step(50, BACKWARD, DOUBLE); 
@@ -370,6 +417,8 @@ void panelrotate(){
   }
 //    TexturePanelStepper->release();
   curr_pos = next_pos;
+  Serial.print("curr_pos is now ");
+  Serial.println(curr_pos);
 }
 
 //=============
