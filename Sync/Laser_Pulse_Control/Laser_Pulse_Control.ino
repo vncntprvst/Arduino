@@ -1,5 +1,7 @@
 /*
-
+Keyboard Commands:
+s - start 
+p - pause
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -47,10 +49,10 @@ void loop() {
 //    Serial.println("Pulse");
     digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
     digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(20);              // wait for a second
+    delay(10);              // wait for a second
     digitalWrite(TTLPin, LOW);    // turn Sync TTL off
     digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(80);
+    delay(90);
   }
 }
 
