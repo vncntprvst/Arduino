@@ -51,7 +51,7 @@ unsigned long FPtime; // time since front panel exploration
 int TrialInit=0;
 int TrialSelectMode=0; // 0 -> random selection, 1 -> preset from computer, 2 -> block trial preset (see panel rotate). 
 int TrialBlockMode=1; // Turns Block trials mode ON/OFF
-int BlockSize=3; // this is the number of trials in each block
+int BlockSize=15; // this is the number of trials in each block
 int BlockPos=1; // where we are in the block of trials
 
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino

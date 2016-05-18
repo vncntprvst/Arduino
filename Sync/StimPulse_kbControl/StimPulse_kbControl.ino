@@ -1,5 +1,10 @@
 /*
+// Add angle categories or smoothing array, to keep constant values
+// or maybe keyboard control angle and frequency? Or at least value setting session
 
+// Add vertical control
+
+// Add TTL out. 
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
