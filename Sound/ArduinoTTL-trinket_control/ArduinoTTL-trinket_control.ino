@@ -28,7 +28,7 @@ const int SwitchLed = 3;     // pushbutton led pin
 const int flushcycletime = 20; // solenoid turn off staircase period
 
 //const int TTLPin = 12;
-const int SoundTriggerPin=8;
+const int SoundTriggerPin=11;
 
 int curr_pos=0; // panel position, 0 or 1
 int next_pos=50;
