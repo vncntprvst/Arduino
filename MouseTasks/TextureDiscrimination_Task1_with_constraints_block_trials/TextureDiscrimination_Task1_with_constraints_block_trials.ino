@@ -51,8 +51,7 @@ unsigned long FPtime; // time since front panel exploration
 int TrialInit=0;
 int TrialSelectMode=0; // 0 -> random selection, 1 -> preset from computer, 2 -> block trial preset (see panel rotate). 
 int TrialBlockMode=0; // Turns Block trials mode ON/OFF
-int BlockSize=5
-; // this is the number of trials in each block
+int BlockSize=5; // this is the number of trials in each block
 int BlockPos=1; // where we are in the block of trials
 
 //The shield uses the SDA and SCL i2c pins to control DC and stepper motors. On the Arduino
@@ -185,7 +184,7 @@ void loop() {
       TopFrewtrig=TopFrewtrig+1;
     }
 
-    if ((BottomFrewtrig>5) || (TopFrewtrig>5)){
+    if ((BottomFrewtrig>4) || (TopFrewtrig>4)){
       FPtime=millis();
       resetfp=0;
       while ((FPtime+10000)>millis() && resetfp==0){ // if waits too long, reset
@@ -219,27 +218,27 @@ void loop() {
 //        Serial.print(" Right IR ");
 //        Serial.println(RightIRval);
 
-        if (LeftIRval > (Lbaseline + 200)){
+        if (LeftIRval > (Lbaseline + 100)){
           Lrewtrig=Lrewtrig+1;
-        }else if (RightIRval > (Rbaseline + 200)){
+        }else if (RightIRval > (Rbaseline + 100)){
           Rrewtrig=Rrewtrig+1;
         }
 
-        if (Lrewtrig>5 && LeftGLight==1 && TrialInit==1){
+        if (Lrewtrig>4 && LeftGLight==1 && TrialInit==1){
           RewCount=RewCount+1;
           TTLout(2);
           sendToPC(TrialCount,1,RewCount); // result current trial
           // open left solenoid
           // Serial.println("Open Left Solenoid");
           reward(LeftSolenoid,40);
-          while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 50))){
+          while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 100))){
           // wait for mouse to get out of front panel
             FrontIR1val = analogRead(FrontIR1read); // read the input pin
             FrontIR2val = analogRead(FrontIR2read);
           }
           trialwrapup(2000);
         } 
-        else if (Lrewtrig>5 && RightGlight==1 && TrialInit==1){
+        else if (Lrewtrig>4 && RightGlight==1 && TrialInit==1){
           if (inPort==0){
             sendToPC(TrialCount,81,0);
             // Serial.println("Left Port: incorrect - next trial ");
@@ -253,21 +252,21 @@ void loop() {
           }
         }
 
-        if (Rrewtrig>5 && RightGlight==1 && TrialInit==1){
+        if (Rrewtrig>4 && RightGlight==1 && TrialInit==1){
           RewCount=RewCount+1;
           TTLout(2);
           sendToPC(TrialCount,2,RewCount); // result current trial
           // Open right solenoid
             // Serial.println("Open Right Solenoid ");
           reward(RightSolenoid,40);
-          while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 50))){
+          while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 100))){
           // wait for mouse to get out of front panel
             FrontIR1val = analogRead(FrontIR1read); // read the input pin
             FrontIR2val = analogRead(FrontIR2read);
           }
           trialwrapup(2000);
         } 
-        else if (Rrewtrig>5 && LeftGLight==1 && TrialInit==1){
+        else if (Rrewtrig>4 && LeftGLight==1 && TrialInit==1){
           if (inPort==0){
             sendToPC(TrialCount,82,0);
             // Serial.println("Right Port: incorrect ");
@@ -283,8 +282,8 @@ void loop() {
       }
 
       delay(1);
-      if ((FPtime+15000)<millis() && resetfp==0){
-        while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 50))){
+      if ((FPtime+10000)<millis() && resetfp==0){
+        while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 100))){
           // wait for mouse to get out of front panel
             FrontIR1val = analogRead(FrontIR1read); // read the input pin
             FrontIR2val = analogRead(FrontIR2read);

@@ -41,11 +41,32 @@ void loop() {
 //
 
 //if(
-  Serial.println("Double coil steps");
-  myMotor->step(200, FORWARD, DOUBLE);
-  delay(100);
-  myMotor->step(200, BACKWARD, DOUBLE);
-  
+//  Serial.println("Double coil steps");
+//  myMotor->step(200, FORWARD, DOUBLE);
+//  delay(100);
+//  myMotor->step(200, BACKWARD, DOUBLE);
+//  
+//  
+//      Serial.println("Rotate CW 1/4");
+//     myMotor->step(50, FORWARD, DOUBLE);
+//      delay(100);
+////      Serial.println("Rotate CCW 1/4");
+//     myMotor->step(50, BACKWARD, DOUBLE); 
+//     
+//     myMotor->step(50, FORWARD, DOUBLE);
+//     delay(100);
+//     myMotor->step(50, FORWARD, DOUBLE); 
+//
+////      Serial.println("Rotate CCW 1/4");
+//      myMotor->step(50, BACKWARD, DOUBLE);
+//      delay(100);
+////      Serial.println("Rotate CW 1/4");
+//      myMotor->step(50, FORWARD, DOUBLE); 
+//    
+//     myMotor->step(50, BACKWARD, DOUBLE);
+//     delay(100);
+//     myMotor->step(50, BACKWARD, DOUBLE); 
+//  
   
  // while(millis()-timer < 250){
   //myMotor->step(0,FORWARD,MICROSTEP);
@@ -61,7 +82,7 @@ void loop() {
 //  delay(250);
 //  myMotor->step(150, BACKWARD, MICROSTEP);
     delay(1000);
-//myMotor->release();
+myMotor->release();
     //timer = millis();
    //while(millis()-timer < 5000){
   //myMotor->step(0,FORWARD,MICROSTEP);

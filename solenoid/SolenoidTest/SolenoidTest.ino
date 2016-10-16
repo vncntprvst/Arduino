@@ -37,7 +37,7 @@ void loop() {
   // 200 trials give about ~200ul (1ul each side)
   // Left solenoid
   Serial.println("Open Left Solenoid");
-  reward(LeftSolenoid,47);
+  reward(LeftSolenoid,40);
   RewCount=RewCount+1;
   Serial.print("Reward count: ");
   Serial.println(RewCount);

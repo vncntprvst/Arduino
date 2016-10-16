@@ -1,7 +1,16 @@
 /*
+!!! Warning: Analog input to Cobolt controller should not exceed 1V !!!
+Use PWM filter (aka  "true analog" output)
+
 Keyboard Commands:
 s - start 
 p - pause
+
+set serial monitor Line Ending to Newline first
+
+To do: 
+add live intensity modulation 
+
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -10,6 +19,19 @@ const int LaserTriggerPin=11;
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
 
+// stim parameters
+int pulseInt = 100; // in % - max set to 1V
+int pulseDur = 100; // 1 or 5 ms
+int pulseFreq = 2; // low freq: 1, 5Hz ; high freq: 10, 20, 50
+//pulseTrain ...
+
+  // convert parameters
+int pulseIntVal= round(pulseInt*51/100); // theorethical limit is 51: 255 (max) / 5 (max V), 
+                                         // because capa overshoots
+                                         // reduce down to 43 for 1 uF capa
+                                         // reduce down to 25 for 0.22 uF capa
+int pulseDelay = round(round(1000/pulseFreq) - pulseDur);
+  
 void setup() {
   // initialize serial:
   Serial.begin(9600);
@@ -17,6 +39,20 @@ void setup() {
   inputString.reserve(200);
   pinMode(TTLPin, OUTPUT);
   pinMode(LaserTriggerPin, OUTPUT);
+  
+  if (pulseDelay<1) {
+    pulseDelay=1;
+  }
+  Serial.print("Pulse intensity conversion ");
+  Serial.print(pulseInt);
+  Serial.print("% => pin value of ");
+  Serial.println(pulseIntVal);
+  
+  Serial.print("Pulse frequency conversion ");
+  Serial.print(pulseFreq);
+  Serial.print("Hz => delay of ");
+  Serial.print(pulseDelay);
+  Serial.println(" ms");
 }
 
 void loop() {
@@ -48,11 +84,11 @@ void loop() {
   if (StimStatus==true) {
 //    Serial.println("Pulse");
     digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
-    digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(5);              // wait for a second
+    analogWrite(LaserTriggerPin, pulseIntVal);   // trigger laser
+    delay(pulseDur);              // wait for a second
     digitalWrite(TTLPin, LOW);    // turn Sync TTL off
     digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(495);
+    delay(pulseDelay);
   }
 }
 
