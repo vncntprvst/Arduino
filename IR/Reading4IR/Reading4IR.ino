@@ -29,11 +29,11 @@ void loop()
 {
 
   LeftIRval = analogRead(LeftIRread);    
-//        Serial.print(" Left IR ");
-//  Serial.print(LeftIRval);
   RightIRval = analogRead(RightIRread); 
-//        Serial.print(" Right IR ");
+//  Serial.print("Left IR ");
+//  Serial.print(LeftIRval);
 //  Serial.print(" and ");
+//  Serial.print(" Right IR ");  
 //  Serial.print(RightIRval);
 //  Serial.println(" ; ");
   

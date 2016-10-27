@@ -1,0 +1,35 @@
+10/27
+Mouse Texture Discrimination - Training 1
+
+New alternate trial mode
+	TrialSelectMode=3
+	and in PanelRotate: 
+  	} else if (TrialSelectMode==3) {
+      if (curr_pos < 101){// current trial within first block type
+         next_pos = random(101,201);
+         TrialType=2;
+    } else if (curr_pos > 100){
+         next_pos = random(1,101); 
+         TrialType=1;
+    }
+
+Sets cumulative threshold to 3 
+	(Lrewtrig>3) || (Rrewtrig>3)
+
+No reverse causality in initial trial
+          if (TrialType==1){
+            LeftGLight=1;
+            // Serial.println("TrialType==1");
+          } else if (TrialType==2){
+            RightGlight=1;
+            // Serial.println("TrialType==2");
+          }
+
+Sets reward duration to 40
+	LeftSolenoid,40
+
+TTL out for erroneous Trial
+	TTLout(2)
+
+25ms TTLs 
+	delay(25);

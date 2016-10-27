@@ -18,6 +18,14 @@ void panelrotate(){
     } else if (TrialType==2){
          next_pos = random(101,201); 
     }
+  } else if (TrialSelectMode==3) {
+      if (curr_pos < 101){// current trial within first block type
+         next_pos = random(101,201);
+         TrialType=2;
+    } else if (curr_pos > 100){
+         next_pos = random(1,101); 
+         TrialType=1;
+    }
   } 
   
 //  Serial.print("panelrotate next pos ");
