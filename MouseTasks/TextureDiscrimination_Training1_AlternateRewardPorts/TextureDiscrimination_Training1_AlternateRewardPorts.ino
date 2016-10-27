@@ -42,8 +42,9 @@ unsigned short resetfp = 1; // reset front panel "exploration"'s validation
 
 unsigned long FPtime; // time since front panel exploration
 int TrialInit=0;
-int TrialSelectMode=0; // 0 -> random selection, 1 -> preset from computer, 2 -> block trial preset (see panel rotate). 
-int TrialBlockMode=1; // Turns Block trials mode ON/OFF
+int TrialSelectMode=3; // 0 -> random selection, 1 -> preset from computer, 
+                      // 2 -> block trial preset,  3 -> alternate trials (see panel rotate). 
+int TrialBlockMode=0; // Turns Block trials mode ON/OFF
 int BlockSize=15; // this is the number of trials in each block
 int BlockPos=1; // where we are in the block of trials
 
@@ -57,7 +58,7 @@ int LeftIRval = Lbaseline;           // store read value
 int RightIRval = Rbaseline; 
 int FrontIR1val = F1baseline;
 int FrontIR2val = F2baseline;
-int LeftGLight = 1; // Good to go ("green light")
+int LeftGLight = 0; // Good to go ("green light")
 int RightGlight = 0;
 //int PushState = 0;          // pushbutton status
 int TrialCount=0;
@@ -206,7 +207,7 @@ void loop() {
           Rrewtrig=Rrewtrig+1;
         }
 
-    if ((Lrewtrig>5) || (Rrewtrig>5)){
+    if ((Lrewtrig>3) || (Rrewtrig>3)){
       FPtime=millis();
       resetfp=0;
       while ((FPtime+10000)>millis() && resetfp==0){ // if waits too long, reset
@@ -219,13 +220,20 @@ void loop() {
 //            // Serial.println("Start"); // this will be skiped by serial read
 //            // Serial.println("Trial number, Trial type, Succes count, Time "); // file header
 //          } else if (TrialCount>1)
-            if (LeftGLight==1){ // reversing causality for that first step: trial type should dictate which side is on
-               TrialType=1;
-              // Serial.println("TrialType==1");
-            } else if (RightGlight==1){
-               TrialType=2;
-              // Serial.println("TrialType==2");
-            }
+//            if (LeftGLight==1){ // reversing causality for that first step: trial type should dictate which side is on
+//               TrialType=1;
+//              // Serial.println("TrialType==1");
+//            } else if (RightGlight==1){
+//               TrialType=2;
+//              // Serial.println("TrialType==2");
+//            }
+          if (TrialType==1){
+            LeftGLight=1;
+            // Serial.println("TrialType==1");
+          } else if (TrialType==2){
+            RightGlight=1;
+            // Serial.println("TrialType==2");
+          }
           
           sendToPC(TrialCount,int(TrialType),RewCount);
           TrialInit=1;
@@ -234,22 +242,23 @@ void loop() {
           delay(100);
         }
 
-        if (Lrewtrig>5 && LeftGLight==1 && TrialInit==1){
+        if (Lrewtrig>3 && LeftGLight==1 && TrialInit==1){
           RewCount=RewCount+1;
           TTLout(2);
-          sendToPC(TrialCount,1,RewCount); // result current trial
+          sendToPC(TrialCount,int(TrialType),RewCount); // result current trial
           // open left solenoid
           // Serial.println("Open Left Solenoid");
-          reward(LeftSolenoid,47);
+          reward(LeftSolenoid,40);
           while ((FrontIR1val > (F1baseline + 100)) || (FrontIR2val > (F2baseline + 100))){
           // wait for mouse to get out of front panel
             FrontIR1val = analogRead(FrontIR1read); // read the input pin
             FrontIR2val = analogRead(FrontIR2read);
           }
           trialwrapup(2000);
-        } else if (Lrewtrig>5 && RightGlight==1 && TrialInit==1){
+        } else if (Lrewtrig>3 && RightGlight==1 && TrialInit==1){
           if (inPort==0){
-            sendToPC(TrialCount,81,0);
+            TTLout(2);
+            sendToPC(TrialCount,int(80+TrialType),0);
             // Serial.println("Left Port: incorrect - next trial ");
             RightGlight=0;
             LeftGLight=1;
@@ -263,10 +272,10 @@ void loop() {
 //          }
         }
 
-        if (Rrewtrig>5 && RightGlight==1 && TrialInit==1){
+        if (Rrewtrig>3 && RightGlight==1 && TrialInit==1){
           RewCount=RewCount+1;
           TTLout(2);
-          sendToPC(TrialCount,2,RewCount); // result current trial
+          sendToPC(TrialCount,int(TrialType),RewCount); // result current trial
           // Open right solenoid
             // Serial.println("Open Right Solenoid ");
           reward(RightSolenoid,40);
@@ -276,9 +285,10 @@ void loop() {
             FrontIR2val = analogRead(FrontIR2read);
           }
           trialwrapup(2000);
-        } else if (Rrewtrig>5 && LeftGLight==1 && TrialInit==1){
+        } else if (Rrewtrig>3 && LeftGLight==1 && TrialInit==1){
           if (inPort==0){
-            sendToPC(TrialCount,82,0);
+            TTLout(2);
+            sendToPC(TrialCount,int(80+TrialType),0);
             // Serial.println("Right Port: incorrect ");
             LeftGLight=0;
             RightGlight=1;
