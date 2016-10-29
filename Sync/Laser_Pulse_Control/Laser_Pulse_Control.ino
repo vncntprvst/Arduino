@@ -26,6 +26,7 @@ void loop() {
     if (inputString[0]=='s') {
       Serial.println("Start");
       StimStatus = true;
+//      delay(5000);
     }
     else if (inputString[0]=='p') { // inputString.equalsIgnoreCase("p")
       Serial.println("Pause");
@@ -49,10 +50,10 @@ void loop() {
 //    Serial.println("Pulse");
     digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
     digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(5);              // wait for a second
+    delay(10);              // wait for a second
     digitalWrite(TTLPin, LOW);    // turn Sync TTL off
     digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(495);
+    delay(90);
   }
 }
 
