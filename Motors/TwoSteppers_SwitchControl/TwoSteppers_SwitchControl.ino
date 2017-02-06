@@ -7,8 +7,8 @@
 #define enablePinS1  12
 #define buttonCWpin 10
 #define buttonCCWpin  11
-#define motorSpeed 1200 // max 1800
-#define motorAccel 10000 // 15000 for speed = 1800
+#define motorSpeed 1800 // max 1800, base 1200 (ST-M5045 set at 400 step per rev, 2 microsteps)
+#define motorAccel 10000 // 15000 for speed = 1800, 10000 for 12000
 // Stepper 2 
 #define stepPinS2 3
 #define directionPinS2 2
