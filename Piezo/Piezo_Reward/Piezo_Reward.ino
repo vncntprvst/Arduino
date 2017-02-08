@@ -23,8 +23,8 @@ byte lastswitchState[2] = {0, 0};
 
 // piezo variables
 #define piezoPin A0
-int baseline = 10;
-int piezoVal = baseline;           // store read value
+int baseline = 5;
+int piezoVal = 2;           // store read value
 int piezoADC;
 
 // serial com variables
@@ -33,7 +33,7 @@ byte SessionStatus[2] = {0, 0}; // 1/ Run [ON/OFF (1/0)] 2/ Reset (1)
 
 void setup() 
 {
-  Serial.begin(57600);
+  Serial.begin(115200);
   AFMS.begin();  // initiate motor shield with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
 
@@ -44,7 +44,7 @@ void setup()
 void loop() 
 {
 //  GetDataFromPC(); // keaboard commands (incompatible with Serial plotter)
- ReadButtons(); // switch button ccommands
+ ReadButtons(); // switch button commands
   while (SessionStatus[0] == 0){
 //   GetDataFromPC();
     ReadButtons();
@@ -52,13 +52,12 @@ void loop()
   if (SessionStatus[0] == 1){ 
     // Read Piezo ADC value in, and convert it to a voltage
 //    piezoADC = analogRead(piezoPin);
-//    Serial.println(piezoADC); // Print analog value.
       piezoADC = cumSumAnalog(); //peakAnalog();
       Serial.println(piezoADC);
 //    float piezoV = piezoADC / 1023.0 * 5.0;
 //    Serial.println(piezoV); // Print the voltage.
   
-    if (analogRead(piezoPin)>baseline) {
+    if (piezoADC>baseline) {
 //      Serial.println("touch detected");
         Reward(rewardSolenoid,40);
         delay(500);
@@ -92,10 +91,10 @@ void ReadButtons() {
   if (millis() - statusChange > 500){
     switchState[0] = digitalRead(buttonUWpin);
     switchState[1] = digitalRead(buttonLWpin);
-  //  Serial.print("Right push ");
-  //  Serial.print(switchState[0]);
-  //  Serial.print(" ; Left push ");
-  //  Serial.println(switchState[1]);
+//    Serial.print("Right push ");
+//    Serial.print(switchState[0]);
+//    Serial.print(" ; Left push ");
+//    Serial.println(switchState[1]);
     
     if (switchState[0] != lastswitchState[0]) {
       if (switchState[0] == HIGH) {

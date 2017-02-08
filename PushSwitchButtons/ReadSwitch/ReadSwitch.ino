@@ -14,8 +14,8 @@ void setup()
   pinMode(buttonRWpin, INPUT);
   pinMode(buttonLWpin, INPUT);
   pinMode(ledPin, OUTPUT);
-  digitalWrite(buttonRWpin, LOW);
-  digitalWrite(buttonLWpin, LOW);
+//  digitalWrite(buttonRWpin, LOW);
+//  digitalWrite(buttonLWpin, LOW);
   digitalWrite(ledPin, LOW);
 }
 
