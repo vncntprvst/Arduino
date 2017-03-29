@@ -2,8 +2,9 @@
 // on an Uno the onboard led will flash with each step
 // this version uses delay() to manage timing
 
-byte directionPin = 9;
-byte stepPin = 8;
+byte directionPin = 2;
+byte stepPin = 3;
+byte sleepPin = 4;
 int numberOfSteps = 400;
 byte ledPin = 13;
 int pulseWidthMicros = 20;  // microseconds
@@ -20,8 +21,10 @@ void setup() {
 
   pinMode(directionPin, OUTPUT);
   pinMode(stepPin, OUTPUT);
+  pinMode(sleepPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
   
+  digitalWrite(sleepPin, HIGH);
  
   digitalWrite(directionPin, HIGH);
   for(int n = 0; n < numberOfSteps; n++) {

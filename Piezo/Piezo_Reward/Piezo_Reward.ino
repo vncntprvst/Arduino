@@ -95,7 +95,7 @@ void ReadButtons() {
 //    Serial.print(switchState[0]);
 //    Serial.print(" ; Left push ");
 //    Serial.println(switchState[1]);
-    
+//    
     if (switchState[0] != lastswitchState[0]) {
       if (switchState[0] == HIGH) {
   //      switchPushCounter[0]++;

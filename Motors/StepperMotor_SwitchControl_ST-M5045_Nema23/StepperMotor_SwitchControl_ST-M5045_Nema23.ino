@@ -2,11 +2,11 @@
 // Stepper 1 controlled through ST-M5045
 
 // Stepper 1
-#define stepPinS1 8
-#define directionPinS1 9
-#define enablePinS1  12
-#define buttonCWpin 10
-#define buttonCCWpin  11
+#define stepPinS1 9
+#define directionPinS1 8
+#define enablePinS1  10
+#define buttonCWpin 11
+#define buttonCCWpin  12
 
 // other defs
 boolean buttonCWpressed = false;

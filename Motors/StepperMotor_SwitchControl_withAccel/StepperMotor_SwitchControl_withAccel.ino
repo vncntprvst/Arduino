@@ -1,10 +1,10 @@
 #include <AccelStepper.h>
 
-#define stepPin 8
-#define directionPin 9
-#define buttonCWpin 10
-#define buttonCCWpin  11
-#define enablePin  12
+#define stepPin 9
+#define directionPin 8
+#define buttonCWpin 11
+#define buttonCCWpin  12
+#define enablePin  10
 
 #define motorSpeed 1200 // max 1800
 #define motorAccel 10000 // 15000 for speed = 1800
@@ -27,8 +27,13 @@ void setup()
   stepper.setSpeed(motorSpeed);
   stepper.setAcceleration(motorAccel);
 
-  // enable output
-  digitalWrite(enablePin, HIGH);
+// test rail
+testrailstepper();
+testrailstepper();
+testrailstepper();
+
+// disable output
+ digitalWrite(enablePin, LOW);
 }
 
 void loop() { 
@@ -48,11 +53,11 @@ void readButtons() {
  
  if (digitalRead(buttonCWpin) == HIGH) {
  buttonCWpressed = true;
-// Serial.println("CW rotation");
+ Serial.println("CW rotation");
  }
  if (digitalRead(buttonCCWpin) == HIGH) {
  buttonCCWpressed = true;
-// Serial.println("CCW rotation");
+ Serial.println("CCW rotation");
  }
 }
 
@@ -69,10 +74,39 @@ void actOnButtons() {
  }
 }
 
-//Try sending a logical 0 to EN input on driver, to see if that releases the stepper
-//void sfdggdfhd() {
-//
-//}
+void testrailstepper(){
+   delay(200);
+    // enable output
+  digitalWrite(enablePin, LOW);
+
+// test foward / backward motion
+ unsigned long currentTime = millis();
+ unsigned long previousTime = currentTime;
+ digitalWrite(directionPin, LOW);
+ while (currentTime - previousTime < 200) {
+   digitalWrite(enablePin, HIGH);
+   stepper.setSpeed(motorSpeed);
+   stepper.runSpeed();
+   currentTime = millis();
+ }
+// delay(200);
+ digitalWrite(enablePin, LOW);
+ delay(200);
+ currentTime = millis();
+ previousTime = currentTime;
+ digitalWrite(directionPin, HIGH); 
+ while (currentTime - previousTime < 200) {
+ digitalWrite(enablePin, HIGH);
+ stepper.setSpeed(-motorSpeed);
+ stepper.runSpeed();
+ currentTime = millis();
+ }
+// delay(200);
+
+// disable output
+ digitalWrite(enablePin, LOW);
+}
+
 
 
 
