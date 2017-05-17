@@ -15,7 +15,7 @@ AccelStepper stepper(1,stepPin,directionPin);
 
 void setup()
 {  
-//  Serial.begin(9600);
+  Serial.begin(115200);
 
   pinMode(directionPin, OUTPUT);
   pinMode(stepPin, OUTPUT);
@@ -23,20 +23,23 @@ void setup()
   pinMode(buttonCWpin, INPUT);
   pinMode(buttonCCWpin, INPUT);
 
-  stepper.setMaxSpeed(motorSpeed);
-  stepper.setSpeed(motorSpeed);
-  stepper.setAcceleration(motorAccel);
-
 // test rail
-testrailstepper();
-testrailstepper();
-testrailstepper();
+//testrailstepper();
+//testrailstepper();
+//testrailstepper();
 
 // disable output
  digitalWrite(enablePin, LOW);
+
+  stepper.setMaxSpeed(motorSpeed);
+  stepper.setSpeed(motorSpeed);
+  stepper.setAcceleration(motorAccel);
+  stepper.setCurrentPosition(0);
+//  digitalWrite(enablePin, LOW);  
 }
 
 void loop() { 
+ stepper.run();
  readButtons();
   if (buttonCCWpressed || buttonCWpressed == true) {
     digitalWrite(enablePin, HIGH);

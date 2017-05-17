@@ -5,7 +5,7 @@ Left / Right last calibrated on 2/25/16
 
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_PWMServoDriver.h"
+#include "utility/Adafruit_MS_PWMServoDriver.h"
 
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
@@ -13,7 +13,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 // Select which 'port' M1, M2, M3 or M4. In this case, M1
 Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
 // You can also make another motor on port M2
-Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
+//Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
 
 int RewCount=0;
 
@@ -26,13 +26,12 @@ void setup() {
 
   // turn off current in solenoid coil
   LeftSolenoid->run(RELEASE);
-  RightSolenoid->run(RELEASE);
+//  RightSolenoid->run(RELEASE);
   
   delay(2000);
 }
 
 void loop() {
-  
     while (RewCount < 200){
   // 200 trials give about ~200ul (1ul each side)
   // Left solenoid
@@ -46,14 +45,14 @@ void loop() {
   delay(500);
 
   // Right solenoid
-  Serial.println("Open Right Solenoid ");
-  reward(RightSolenoid,40);
-  RewCount=RewCount+1;
-  Serial.print("Reward count: ");
-  Serial.println(RewCount);
-  
-  // refractory period
-  delay(500);
+//  Serial.println("Open Right Solenoid ");
+//  reward(RightSolenoid,40);
+//  RewCount=RewCount+1;
+//  Serial.print("Reward count: ");
+//  Serial.println(RewCount);
+//  
+//  // refractory period
+//  delay(500);
     }
 }
 

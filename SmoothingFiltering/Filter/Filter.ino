@@ -1,18 +1,5 @@
-/******************************************************************************
-When touch detected, give liquid reward
-******************************************************************************/
 
-#include <Wire.h> //The shield uses the SDA and SCL i2c pins to control DC and stepper motors.  
-                  //On the Arduino UNO these are also known as A4 and A5
-#include <Adafruit_MotorShield.h>
 #include <Filters.h>
-
-// Create the motor shield object with the default I2C address
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
-
-// Select which 'port' M1, M2, M3 or M4. 
-// Solenoid on M2
-Adafruit_DCMotor *rewardSolenoid = AFMS.getMotor(2);
 
 // switch button
 #define buttonLWpin 11
@@ -41,12 +28,9 @@ byte sessionStatus[2] = {0, 0}; // 1/ Run [ON/OFF (1/0)] 2/ Reset (1)
 
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(57600);
   AFMS.begin();  // initiate motor shield with the default frequency 1.6KHz
   //AFMS.begin(1000);  // to apply a different frequency, here 1KHz
-
-// turn off current in solenoid coil
-  rewardSolenoid->run(RELEASE);
 }
 
 void loop() 
@@ -74,28 +58,6 @@ void loop()
 //        Reward(rewardSolenoid,40);
 //        delay(50);
 //    }
-  }
-}
-
-void GetDataFromPC() {
-  if (Serial.available() > 0) {
-                // read the incoming byte:
-                incomingByte = Serial.read();
-
-                // say what you got:
-//                Serial.print("I received: ");
-//                Serial.println(incomingByte, DEC);
-
-                if (incomingByte == 101) { // "e"
-//                   Serial.println("stop");
-                   sessionStatus[0] = 0;
-                } else if (incomingByte == 115){ // "s"
-//                   Serial.println("start");
-                   sessionStatus[0] = 1;
-                } else if (incomingByte == 114){ // "r"
-//                   Serial.println("reward");
-                   Reward(rewardSolenoid,40);
-                }
   }
 }
 
@@ -176,26 +138,6 @@ int cumSumAnalog() {
   return cumVal; //peakVal;
 }
 
-void Reward(Adafruit_DCMotor* solenoid,int dur){
-  solenoid->setSpeed(255);  
-  solenoid->run(FORWARD);
-  delay(dur);
-  solenoid->run(RELEASE); // cut power to motor
-}
-
-void RewardFlush(){
-//  Serial.println("flush");
-  // flush left
-  rewardSolenoid->run(FORWARD);
-  rewardSolenoid->setSpeed(255);
-  delay(1500);
-  rewardSolenoid->run(RELEASE);
-  // flush right
-//  RightSolenoid->run(FORWARD);
-//  RightSolenoid->setSpeed(255);
-//  delay(1500);
-//  RightSolenoid->run(RELEASE);
-}
 
 
 

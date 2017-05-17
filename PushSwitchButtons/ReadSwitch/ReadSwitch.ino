@@ -6,11 +6,11 @@ unsigned long statusChange = millis();
 byte switchPushCounter[2] = {0, 0};
 byte switchState[2] = {0, 0};
 byte lastswitchState[2] = {0, 0};
-const int ledPin =  13;
+const int ledPin =  50;
 
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(buttonRWpin, INPUT);
   pinMode(buttonLWpin, INPUT);
   pinMode(ledPin, OUTPUT);
@@ -33,6 +33,8 @@ void readButtons() {
   Serial.println(switchState[1]);
   if (switchState[0] == 1) {
     digitalWrite(ledPin, HIGH);
+  } else {
+    digitalWrite(ledPin, LOW);
   }
   
   if ((switchState[0] != lastswitchState[0]) || (switchState[1] != lastswitchState[1])) {

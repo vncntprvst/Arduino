@@ -1,7 +1,7 @@
 /* Reading IR phototransistor
 VP - 4/11/2014 */
 
-int analogPin = A2;   
+int analogPin = A8;   
 int baseline =0;
 int val = baseline;           // store read value
 
