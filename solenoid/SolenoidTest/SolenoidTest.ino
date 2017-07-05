@@ -11,7 +11,7 @@ Left / Right last calibrated on 2/25/16
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
 // Select which 'port' M1, M2, M3 or M4. In this case, M1
-Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(1);
+Adafruit_DCMotor *LeftSolenoid = AFMS.getMotor(2);
 // You can also make another motor on port M2
 //Adafruit_DCMotor *RightSolenoid = AFMS.getMotor(2);
 
