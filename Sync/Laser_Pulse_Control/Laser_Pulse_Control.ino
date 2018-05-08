@@ -5,8 +5,8 @@ p - pause
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int TTLPin = 12;           // Pulse pin
-const int LaserTriggerPin=11;
+const int TTLPin = 8;           // Pulse pin
+const int LaserTriggerPin=6;
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
 
@@ -56,10 +56,10 @@ void loop() {
 //    Serial.println("Pulse");
     digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
     digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(10);              // wait for a second
+    delay(25);              // wait for a second
     digitalWrite(TTLPin, LOW);    // turn Sync TTL off
     digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(90);
+    delay(475);
   }
 }
 
