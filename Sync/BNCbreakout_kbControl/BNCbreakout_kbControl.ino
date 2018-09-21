@@ -5,8 +5,8 @@ p - pause
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int TTLPin = 8;           // Pulse pin
-const int LaserTriggerPin=6;
+const int LED_Pin = 8;           
+const int TTL1_Pin=9;            // Pulse pin
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
 
@@ -15,8 +15,8 @@ void setup() {
   Serial.begin(9600);
   // reserve 200 bytes for the inputString:
   inputString.reserve(200);
-  pinMode(TTLPin, OUTPUT);
-  pinMode(LaserTriggerPin, OUTPUT);
+  pinMode(LED_Pin, OUTPUT);
+  pinMode(TTL1_Pin, OUTPUT);
 }
 
 void loop() {
@@ -26,13 +26,6 @@ void loop() {
     if (inputString[0]=='s') {
       Serial.println("Start");
       StimStatus = true;
-//      delay(5000);
-//    digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
-//    digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-//    delay(25);              // wait for a second
-//    digitalWrite(TTLPin, LOW);    // turn Sync TTL off
-//    digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-//    delay(100);
     }
     else if (inputString[0]=='p') { // inputString.equalsIgnoreCase("p")
       Serial.println("Pause");
@@ -54,12 +47,12 @@ void loop() {
   
   if (StimStatus==true) {
 //    Serial.println("Pulse");
-    digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
-    digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(10);              // wait for a 25ms
-    digitalWrite(TTLPin, LOW);    // turn Sync TTL off
-    digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(240); // wait for a 475ms
+    digitalWrite(LED_Pin, HIGH);   // turn green LED on
+    digitalWrite(TTL1_Pin, HIGH);   // trigger laser
+    delay(2);              // wait for a 25ms
+    digitalWrite(LED_Pin, LOW);    // turn green LED off
+    digitalWrite(TTL1_Pin, LOW);    // end laser pulse
+    delay(98); // wait for a 475ms
   }
 }
 
