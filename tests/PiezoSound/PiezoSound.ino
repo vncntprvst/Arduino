@@ -1,7 +1,9 @@
 #include "pitches.h"
 
-int sensorPin = A0;    // select the input pin for the potentiometer
-int sensorValue = 0;  // variable to store the value coming from the sensor
+//int sensorPin = A0;    // select the input pin for the potentiometer
+int soundPin = 8;
+int inputPin = 7;
+//int sensorValue = 0;  // variable to store the value coming from the sensor
 
 int melody[] = {
   NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
@@ -14,18 +16,26 @@ int noteDurations[] = {
 
 void setup() {
     Serial.begin(9600);
+    pinMode(soundPin,OUTPUT);
+//    pinMode(outputPin, OUTPUT);
+    pinMode(inputPin,INPUT);
 }
 
 void loop() {
-    sensorValue = analogRead(sensorPin);
-    Serial.println(sensorValue);
-    if (sensorValue < 1000) {
+//    sensorValue = analogRead(sensorPin);
+//    Serial.println(sensorValue);
+//    if (sensorValue < 1000) {
+//Serial.println(digitalRead(inputPin));
+      if (digitalRead(inputPin)==HIGH){
       makeSound();
+      } else { 
+      noTone(soundPin); 
     }
+//    digitalWrite(outputPin, LOW);
 }
 
 void makeSound() {
-    tone(8, melody[1], 100);
+    tone(soundPin, melody[1], 100);
 //    noTone(8);
 }
 
@@ -36,14 +46,14 @@ void makeMusic() {
     // divided by the note type.
     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     int noteDuration = 1000 / noteDurations[thisNote];
-    tone(8, melody[thisNote], noteDuration);
+    tone(soundPin, melody[thisNote], noteDuration);
 
     // to distinguish the notes, set a minimum time between them.
     // the note's duration + 30% seems to work well:
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     // stop the tone playing:
-    noTone(8);
+    noTone(soundPin);
   }
 }
 

@@ -1,14 +1,21 @@
 /*
 Keyboard Commands:
-s - start
+s - start 
 p - pause
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int TTLPin = 8;           // Pulse pin
-const int LaserTriggerPin=6;
+const short TTLPin = 8;           // Pulse pin
+const short laserTriggerPin=6;
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
+
+const unsigned long pulsesPerTrain = 10;          // Number of pulses in pulse train (ms)             
+unsigned long pulseFrequency = 10;          // frequency in Hz (ms)                         
+unsigned long pulseDuration = 5;           // pulse duration (ms) 
+unsigned long interPulseInterval = int(1000/pulseFrequency)-pulseDuration;          // ISI (ms)                           
+unsigned long trainInterval = 2000 + (pulsesPerTrain*pulseDuration) + ((pulsesPerTrain-1)*interPulseInterval);         //delay between pulse sets (ms)  
+unsigned long previousTime = 0;
 
 void setup() {
   // initialize serial:
@@ -16,7 +23,7 @@ void setup() {
   // reserve 200 bytes for the inputString:
   inputString.reserve(200);
   pinMode(TTLPin, OUTPUT);
-  pinMode(LaserTriggerPin, OUTPUT);
+  pinMode(laserTriggerPin, OUTPUT);
 }
 
 void loop() {
@@ -28,10 +35,10 @@ void loop() {
       StimStatus = true;
 //      delay(5000);
 //    digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
-//    digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
+//    digitalWrite(laserTriggerPin, HIGH);   // trigger laser
 //    delay(25);              // wait for a second
 //    digitalWrite(TTLPin, LOW);    // turn Sync TTL off
-//    digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
+//    digitalWrite(laserTriggerPin, LOW);    // end laser pulse
 //    delay(100);
     }
     else if (inputString[0]=='p') { // inputString.equalsIgnoreCase("p")
@@ -45,22 +52,39 @@ void loop() {
         Serial.write(inputString[letterCount]);
         Serial.println();
       }
-//      Serial.println(sizeof(inputString));
+//      Serial.println(sizeof(inputString)); 
 //      Serial.println(StimStatus);
     }
     inputString = "";
     stringComplete = false;
   }
 
-  if (StimStatus==true) {
-//    Serial.println("Pulse");
-    digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
-    digitalWrite(LaserTriggerPin, HIGH);   // trigger laser
-    delay(10);              // wait for a 25ms
-    digitalWrite(TTLPin, LOW);    // turn Sync TTL off
-    digitalWrite(LaserTriggerPin, LOW);    // end laser pulse
-    delay(240); // wait for a 475ms
+  unsigned long currentTime = millis();
+  
+  if ((StimStatus==true) && (currentTime - previousTime >= trainInterval)) {
+    // save the last time you blinked the LED
+    previousTime = currentTime;
+//    Serial.println("Pulses on");
+//  Serial.println(interPulseInterval);
+//  Serial.println(trainInterval);
+    GenerateTrain();
   }
+}
+
+void GenerateTrain() {
+ // call SendPulse function pulsesPerTrain times
+ for (int i=1; i<=pulsesPerTrain; i++) {  
+   SendPulse();
+ }
+}
+
+void SendPulse() {
+    digitalWrite(TTLPin, HIGH);   // turn Sync TTL on
+    digitalWrite(laserTriggerPin, HIGH);   // trigger laser
+    delay(pulseDuration);              // wait for a second
+    digitalWrite(TTLPin, LOW);    // turn Sync TTL off
+    digitalWrite(laserTriggerPin, LOW);    // end laser pulse
+    delay(interPulseInterval);
 }
 
 void serialEvent() {
@@ -76,3 +100,5 @@ void serialEvent() {
     }
   }
 }
+
+
