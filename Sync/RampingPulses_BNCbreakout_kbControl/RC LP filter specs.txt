@@ -1,0 +1,6 @@
+Use same configuration as CoboltLaser_Analog_Control
+
+A 47K resistor and 1uF capacitor would work too. 
+
+Make sure to use >125 ohm resistor to protect  pin (which has 40mA specs, 
+ 	so at 5V, a 1 ohm resistor will try to sink 1A. 5/0.040 = 125). 
