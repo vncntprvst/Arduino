@@ -8,7 +8,7 @@
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int TTLPin = 12;           // Pulse pin
+const int TTLPin = 9;           // Pulse pin
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
 

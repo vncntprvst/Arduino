@@ -6,16 +6,16 @@
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  pinMode(12, OUTPUT);
+  pinMode(9, OUTPUT);
 //  pinMode(8, OUTPUT);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  digitalWrite(12, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(9, HIGH);   // turn the LED on (HIGH is the voltage level)
 //  digitalWrite(8, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(20);              // wait for a second
-  digitalWrite(12, LOW);    // turn the LED off by making the voltage LOW
+  delay(10);              // wait for a second
+  digitalWrite(9, LOW);    // turn the LED off by making the voltage LOW
 //  digitalWrite(8, LOW);    // turn the LED off by making the voltage LOW
-  delay(80);  
+  delay(90);  
 }

@@ -1,0 +1,8 @@
+http://playground.arduino.cc/Main/TimerPWMCheatsheet
+https://www.arduino.cc/en/Tutorial/SecretsOfArduinoPWM
+https://arduino.stackexchange.com/questions/25609/set-pwm-frequency-to-25-khz
+https://arduino.stackexchange.com/questions/3182/what-is-the-frequency-of-pwm-output-on-arduino
+http://playground.arduino.cc/Code/PCMAudio
+https://forum.arduino.cc/index.php?topic=341196.0
+
+https://forum.arduino.cc/index.php?topic=435154.0

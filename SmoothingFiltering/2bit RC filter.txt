@@ -1,1 +1,3 @@
 https://hackaday.io/project/19350-an-old-fashion-acoustic-modem-for-the-iphone/log/51980-the-audio-interface
+
+https://arduino.stackexchange.com/questions/31664/how-to-output-a-true-analog-voltage-at-output-pin
