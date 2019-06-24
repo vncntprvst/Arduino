@@ -1,0 +1,12 @@
+Arduino Motor Shield: 
+https://store.arduino.cc/usa/arduino-motor-shield-rev3
+
+Function	Channel A	Channel B
+Direction	Digital 12	Digital 13
+Speed (PWM)	Digital 3	Digital 11
+Brake	Digital 9	Digital 8
+Current Sensing	Analog 0	Analog 1
+
+
+Adafruit Motor Shield:
+https://learn.adafruit.com/adafruit-motor-shield-v2-for-arduino
