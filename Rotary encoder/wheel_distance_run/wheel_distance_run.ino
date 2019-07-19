@@ -14,7 +14,7 @@ void loop() {
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
 //    distanceTraveled = 2*pi*4*newPosition/clickPerCycle;
-    Serial.print(2*pi*4*newPosition/clickPerCycle);
+    Serial.print(-2*pi*4*newPosition/clickPerCycle);
     Serial.println(",");
   }
 }

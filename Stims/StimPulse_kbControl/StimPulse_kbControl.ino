@@ -8,7 +8,7 @@
  */
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int TTLPin = 9;           // Pulse pin
+const int TTLPin = 2;           // Pulse pin
 boolean StimStatus = false;      // Stim is on or off
 int letterCount;
 
@@ -47,9 +47,9 @@ void loop() {
   }
   
   if (StimStatus==true) {
-    Serial.println("Pulse");
+//    Serial.println("Pulse");
     digitalWrite(TTLPin, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(100);              // wait for a second
+    delay(10);              // wait for x ms
     digitalWrite(TTLPin, LOW);    // turn the LED off by making the voltage LOW
     delay(100);
   }
