@@ -1,6 +1,4 @@
-
-
-#include <Encoder.h>
+#include <Encoder.h> // (get library here https://github.com/PaulStoffregen/Encoder)
 Encoder myEnc(2, 3);
 #define pi 3.14
 #define clickPerCycle 400

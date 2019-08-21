@@ -3,6 +3,11 @@ Some folders
 #################
 Libraries/SdFat/
 Libraries/DueTimer/
+Libraries/Firmata/
+Libraries/AccelStepper/
+Libraries/Adafruit_Motor_Shield_V2_Library/
+Libraries/Robot_Control/
+Libraries/Servo/
 
 #################
 ## Eclipse
@@ -219,3 +224,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
