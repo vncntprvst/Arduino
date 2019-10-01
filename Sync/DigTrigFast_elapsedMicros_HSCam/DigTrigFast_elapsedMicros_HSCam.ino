@@ -16,9 +16,10 @@ void loop() {
     // trigger at 500Hz
     if (sinceOnsetTest >= 1000) {
       sinceOnsetTest = sinceOnsetTest - 1000;
-      digitalWriteFast(syncPin, HIGH);
+      digitalWriteFast(syncPin, !digitalReadFast(syncPin));
+//      digitalWriteFast(syncPin, HIGH);
     } else {
-      digitalWriteFast(syncPin, LOW);
+//      digitalWriteFast(syncPin, LOW);
       TestSync();
     }
   } else {
