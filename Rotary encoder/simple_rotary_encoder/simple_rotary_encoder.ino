@@ -11,7 +11,7 @@ void setup() {
 
 void loop(){
 //  print distance
-  Serial.println(2*pi*4/clicks);
+  Serial.println(clicks); //2*pi*4/clicks
 }
  
 void quadA() {
