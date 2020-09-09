@@ -16,7 +16,7 @@ void loop() {
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    phaseVal = (abs(newPosition) % clickPerCycle)*255/clickPerCycle;
+    phaseVal = (abs(newPosition) % clickPerCycle)*200/clickPerCycle;
 //    Serial.println(phaseVal);
 //    distanceTraveled = 2*pi*4*newPosition/clickPerCycle;
 //    Serial.println(-2*pi*newPosition/clickPerCycle); // multiply by distance from center (e.g.,*4) to convert to actual distance.
